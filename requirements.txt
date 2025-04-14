@@ -1,0 +1,12 @@
+pinecone
+langchain_pinecone
+langchain_openai
+langchain_core
+langchain_community
+langchain_groq
+langchain
+dotenv
+pandas
+flask
+flask_cors
+langgraph
