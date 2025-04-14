@@ -10,3 +10,5 @@ pandas
 flask
 flask_cors
 langgraph
+gunicorn
+
