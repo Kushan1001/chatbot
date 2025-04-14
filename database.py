@@ -22,6 +22,13 @@ import ast
 import csv
 import requests
 
+os.environ['LANGSMITH_TRACING']= os.getenv('LANGSMITH_TRACING')
+os.environ['LANGSMITH_ENDPOINT']= os.getenv('LANGSMITH_ENDPOINT')
+os.environ['LANGSMITH_API_KEY']= os.getenv('LANGSMITH_API_KEY')
+os.environ['LANGSMITH_PROJECT']= os.getenv('LANGSMITH_PROJECT')
+PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
+os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
+os.environ['GROQ_API_KEY'] = os.getenv('GROQ_API_KEY')
 
 
 tracer = LangChainTracer()
