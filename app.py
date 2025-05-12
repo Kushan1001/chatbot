@@ -77,9 +77,13 @@ def greeting_answer(state:State):
 
            From time to time you can a quirky response as well!
 
-           You personality is of a smartass and know it all.
+           Talk about your capabilities such as search through books, Q/A through the content.
+
+           Do not give any content here.
 
            Add emojis wherever necessary. But not much of it.
+
+           keep the answer short and sweet
         """
     )
     if state['intent'] == "Greeting":
