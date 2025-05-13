@@ -103,6 +103,7 @@ def query_answer(state:State):
             - Do not provide personal opinions or views.
             - If URLs are NA do not include them in your answer
             - When you answer with ebooks, rarebooks, archives always mention their urls.
+            - Always make Urls and links clickable
             - If description is available present it in a sumamrise manner.
             - Always answer from the context available do not go beyond it.
             
