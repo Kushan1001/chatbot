@@ -774,6 +774,4 @@ def clear_memory():
     thread_id += 1
     return jsonify({"message": "Memory cleared successfully"}), 200
 
-if __name__ == '__main__':
-    app.run(debug = True)
 
