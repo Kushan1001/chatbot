@@ -16,7 +16,6 @@ from urllib.parse import urlparse
 import json
 import tiktoken
 
-
 app = Flask(__name__)
 
 CORS(app, origins= "*" )
@@ -32,6 +31,7 @@ class State(TypedDict):
     pages_summary = str
     context: Annotated[list, add_messages]
     response: Annotated[list, add_messages]
+    language: str
 
 graph_builder=StateGraph(State)
 
@@ -67,7 +67,7 @@ def identify_intent(state:State):
     2. Query
     3. Unknown
     
-    Query: "{state['user_query']}"
+    Query: "{state['user_query']}" 
     
     Respond with only the intent name.
     """
@@ -77,19 +77,46 @@ def identify_intent(state:State):
     
     return {'intent': intent}
 
+
+def translate_to_hindi(text: str) -> str:
+    try:
+        translation_prompt = PromptTemplate.from_template(
+            """You are a professional translator. Translate the following text into Hindi.
+            
+            Preserve:
+            - Formatting
+            - Structure (headings, bullet points, etc.)
+            - Punctuation
+            - Names of people, places, and organizations (as appropriate)
+            - Do not give the answer as here is the hindi translation. Give give response as given in the english text.
+            - Preserve the gender as well.
+
+            Text:
+            {text}
+
+            Hindi Translation:
+            """
+        )
+        chain = translation_prompt | llm
+        result = chain.invoke({'text': text})
+        return result.content
+    except Exception as e:
+        print("Translation error:", e)
+        return text 
+
+
 def greeting_answer(state:State):
+
+    language = state['language']
+
     qa_prompt = PromptTemplate.from_template(
       """ Your name is Bharti. You are an AI assistant for the Indian Culture Portal that deal with Indian Culture and History.
            When a greets you you should reply with a formal greeting.
 
            From time to time you can a quirky response as well!
-
            Talk about your capabilities such as search through books, Q/A through the content.
-
            Do not give any content here
-
            Add emojis wherever necessary. But not much of it.
-
            keep the answer short and sweet
         """
     )
@@ -97,17 +124,20 @@ def greeting_answer(state:State):
     if state['intent'] == "Greeting":
         chain = qa_prompt | llm
         response = chain.invoke({'question': state['user_query']})
-        return {'response': response.content}
+        content = response.content
+        
+        if language == 'hi':
+            content = translate_to_hindi(content)
 
+        return {'response': content}
 
 def query_answer(state: State):
+    language = state['language']
+    
     qa_prompt = PromptTemplate.from_template(
         """You are an AI assistant for the Indian Culture Portal.
-
         Answer ONLY using the context provided. Do NOT guess or fabricate anything.
-
         Group your answer category-wise.
-
         Respond ONLY with a valid JSON array, strictly matching this structure:
         [
           {{
@@ -140,17 +170,13 @@ def query_answer(state: State):
             parsed_json = json.loads(response.content)
             if not isinstance(parsed_json, list):
                 raise ValueError("Expected a list of category dictionaries")
-            json_str = json.dumps(parsed_json)
-
         except Exception as e:
             print(f"Initial Parsing Error: {e}")
 
             fix_json_prompt = PromptTemplate.from_template(
                 """You are a JSON repair tool.
-
                 Your task is to correct invalid JSON and return only the corrected JSON list.
-
-                Only fix formatting issues. Just return the correct json nothing else.Do not alter the original content. 
+                Only fix formatting issues. Just return the correct json nothing else. Do not alter the original content. 
 
                 Input:
                 {bad_json}
@@ -161,22 +187,27 @@ def query_answer(state: State):
 
             fix_chain = fix_json_prompt | llm
             recovery_response = fix_chain.invoke({'bad_json': response.content})
+
             try:
-                repaired_json = json.loads(recovery_response.content)
-
-                if not isinstance(repaired_json, list):
+                parsed_json = json.loads(recovery_response.content)
+                if not isinstance(parsed_json, list):
                     raise ValueError("Still not a list")
-
-                json_str = json.dumps(repaired_json)
-
             except Exception as e2:
                 print(f"Recovery Parsing Error: {e2}")
-                json_str = json.dumps([{
-                    "category": "Invalid",
-                    "description": "Proper response not returned for the query. Try Again!",
+                parsed_json = [{
+                    "category": "Invalid" if language != "Hindi" else "अमान्य",
+                    "description": "Proper response not returned for the query. Try Again!" if language != "Hindi"
+                                  else "प्रश्न के लिए उचित उत्तर प्राप्त नहीं हुआ। कृपया पुनः प्रयास करें!",
                     "resources": [],
                     "category_url": "NA"
-                }])
+                }]
+
+        if language == "hi":
+            for item in parsed_json:
+                item["category"] = translate_to_hindi(item.get("category", ""))
+                item["description"] = translate_to_hindi(item.get("description", ""))
+
+        json_str = json.dumps(parsed_json, ensure_ascii=False)
 
         return {
             'response': [{
@@ -184,8 +215,8 @@ def query_answer(state: State):
                 'content': json_str
             }]
         }
-    
 
+    
 def truncate_text(text, max_tokens=1300):
     words = text.split()
     return ' '.join(words[:max_tokens])
@@ -201,9 +232,11 @@ def extract_page_content(url):
         return None
 
 
-def summarise_content(data):
+def summarise_content(data, language):
     raw_text = json.dumps(data, indent=2)
     truncated_text = truncate_text(raw_text)
+
+    print(language)
 
     qa_prompt = PromptTemplate.from_template(
         """You are an AI assistant for the Indian Culture Portal, specializing in Indian culture, history, and governance.
@@ -221,7 +254,7 @@ def summarise_content(data):
         - Use bullet points for listing relevant books, laws, or documents.
         - Keep the answer concise and informative.
         - Use emojis **sparingly** to enhance readability (not excessively).
-
+        
         context: {context}
         User question: Summarize the content of this page.
         """
@@ -230,11 +263,16 @@ def summarise_content(data):
     try:
         chain = qa_prompt | llm
         response = chain.invoke({'context': truncated_text})
-        return response.content
+        english_response = response.content
+
+        if language == 'hi':
+            return translate_to_hindi(english_response)
+        
+        return english_response
     except Exception as e:
         print(f"Error summarizing content: {e}")
         return "Failed to generate summary"
-
+    
 
 graph_builder.add_node("question_type", identify_intent)
 graph_builder.add_node("context_memory", answer_query)
@@ -257,13 +295,15 @@ graph = graph_builder.compile(checkpointer=memory)
 def query():
     events_list = []
     answer = ''
-
+    
     data = request.get_json()
     user_query = data['query']
+    language = data['language']
 
-    config = {"configurable": {"thread_id": thread_id}}
+    config = {"configurable": {"thread_id": thread_id, "language": language}}
     events = graph.stream(
-        {'user_query': [{'role': 'user', 'content': user_query}]},
+        {'user_query': [{'role': 'user', 'content': user_query}],
+         'language': language},
         config = config
     )
     
@@ -316,7 +356,7 @@ def summarise_page_endpoint():
     
 
     #------------------------------------------------------------------------------------
-    def handle_musical_instruments(parsed_url, page, nid):
+    def handle_musical_instruments(parsed_url, page, nid, language):
         try:
             musical_instrument = parsed_url.split('/')[2]
             print('musical_instrument', musical_instrument)
@@ -331,7 +371,7 @@ def summarise_page_endpoint():
             instrument_data = next((inst for inst in data['results'] if str(inst.get('nid')) == str(nid)), None)
 
             if instrument_data:
-                answer = summarise_content(instrument_data)
+                answer = summarise_content(instrument_data, language)
                 return jsonify({'summary': answer}), 200
             else:
                 return jsonify({"summary": "No NID found to fetch data. Try another page"}), 404
@@ -341,7 +381,7 @@ def summarise_page_endpoint():
 
 
     #------------------------------------------------------------------------------------
-    def handle_cultural_chronicles(category, page, nid):
+    def handle_cultural_chronicles(category, page, nid, language):
         def try_get_page(p):
             api_url = f'https://icvtesting.nvli.in/rest-v1/{category}?page={p}'
             data = extract_page_content(api_url)
@@ -355,13 +395,13 @@ def summarise_page_endpoint():
         matched_item = try_get_page(page) or try_get_page(1 if page == 0 else 0)
 
         if matched_item:
-            answer = summarise_content(matched_item)
+            answer = summarise_content(matched_item, language)
             return jsonify({'summary': answer}), 200
         else:
             return jsonify({"summary": "No NID found to fetch data. Try another page"}), 404
         
     #------------------------------------------------------------------------------------
-    def handle_textiles(parsed_url, page, nid):
+    def handle_textiles(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india'
             subcategory_type = parsed_url.split('/')[2].lower()
@@ -407,7 +447,7 @@ def summarise_page_endpoint():
                 subcategory_data = data
             
             if subcategory_data:
-                answer = summarise_content(subcategory_data)               
+                answer = summarise_content(subcategory_data, language)               
                 return jsonify({'summary': answer}), 200
             else:
                 return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
@@ -416,7 +456,7 @@ def summarise_page_endpoint():
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
 
     #------------------------------------------------------------------------------------
-    def handle_timeless_trends(parsed_url, page, nid):
+    def handle_timeless_trends(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends'
             subcategory_type = parsed_url.split('/')[2].lower()
@@ -450,7 +490,7 @@ def summarise_page_endpoint():
                 subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('title').lower()) == subcategory_type.replace('-', ' ').lower()), None)
             
             if subcategory_data:
-                answer = summarise_content(subcategory_data)               
+                answer = summarise_content(subcategory_data, language)               
                 return jsonify({'summary': answer}), 200
             else:
                 return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
@@ -462,7 +502,7 @@ def summarise_page_endpoint():
 
 
     #------------------------------------------------------------------------------------
-    def handle_nizams(parsed_url, page, nid):
+    def handle_nizams(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/jewellery-of-the-nizams'
             sub_category = parsed_url.split('/')[2].lower()
@@ -492,18 +532,16 @@ def summarise_page_endpoint():
             subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
 
             if subcategory_data:
-                answer = summarise_content(subcategory_data)               
+                answer = summarise_content(subcategory_data, language)               
                 return jsonify({'summary': answer}), 200
             else:
-                return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
-            
+                return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404           
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
 
-
 #-----------------------------------------------------------------------------
-    def handle_unesco(parsed_url, page, nid):
+    def handle_unesco(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/unesco'
             sub_category = parsed_url.split('/')[2].lower()
@@ -519,7 +557,7 @@ def summarise_page_endpoint():
             subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
 
             if subcategory_data:
-                answer = summarise_content(subcategory_data)               
+                answer = summarise_content(subcategory_data, language)               
                 return jsonify({'summary': answer}), 200
             else:
                 return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
@@ -530,7 +568,7 @@ def summarise_page_endpoint():
         
 
 #-----------------------------------------------------------------------------
-    def handle_forts(parsed_url, page, nid):
+    def handle_forts(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/forts-of-india'
             sub_category = parsed_url.split('/')[2].lower()
@@ -556,7 +594,7 @@ def summarise_page_endpoint():
                 subcategory_data = data
             
             if subcategory_data:
-                answer = summarise_content(subcategory_data)               
+                answer = summarise_content(subcategory_data, language)               
                 return jsonify({'summary': answer}), 200
             else:
                 return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
@@ -568,7 +606,7 @@ def summarise_page_endpoint():
 #-----------------------------------------------------------------------------
 
 
-    def handle_ajanta(parsed_url, data, nid):
+    def handle_ajanta(parsed_url, data, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/ajanta-landing-page'
             api_url = base_url
@@ -595,7 +633,7 @@ def summarise_page_endpoint():
                 subcategory_data = data
             
             if subcategory_data:
-                answer = summarise_content(subcategory_data)               
+                answer = summarise_content(subcategory_data, language)               
                 return jsonify({'summary': answer}), 200
             else:
                 return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
@@ -606,7 +644,7 @@ def summarise_page_endpoint():
 #-----------------------------------------------------------------------------
 
 
-    def handle_virtual_walkthrough(parsed_url, page, nid):
+    def handle_virtual_walkthrough(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1'
             sub_category = parsed_url.split('/')[2].lower()
@@ -622,7 +660,7 @@ def summarise_page_endpoint():
             subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
 
             if subcategory_data:
-                answer = summarise_content(subcategory_data)               
+                answer = summarise_content(subcategory_data, language)               
                 return jsonify({'summary': answer}), 200
             else:
                 return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
@@ -632,18 +670,31 @@ def summarise_page_endpoint():
                     return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
 #-----------------------------------------------------------------------------
     
-    def handle_DOD(parsed_url, page, nid):
+    def handle_DOD(parsed_url, page, nid, language):            
         try:
-            if 'Story' in parsed_url:
-                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3ADDR%20Story'
-            elif 'Traditions' in parsed_url:
-                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3ATraditions%20%26%20Art%20Forms'
-            elif 'Personality' in parsed_url:
-                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3APersonality'
-            elif 'Events' in parsed_url:
-                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3AEvents'
-            elif 'Treasures' in parsed_url:
-                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3AHidden%20Treasures'
+            if 'searchtext' not in parsed_url and 'type' not in parsed_url:
+                if 'Story' in parsed_url:
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3ADDR%20Story'
+                elif 'Traditions' in parsed_url:
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3ATraditions%20%26%20Art%20Forms'
+                elif 'Personality' in parsed_url:
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3APersonality'
+                elif 'Events' in parsed_url:
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3AEvents'
+                elif 'Treasures' in parsed_url:
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3AHidden%20Treasures'
+            elif 'searchtext' in parsed_url:
+                for value in parsed_url.split('/'):
+                    if 'searchtext' in value:
+                        query_text = value.split('=')[-1]
+                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&search_api_fulltext={query_text}&&field_state_name_value='
+            elif  'type' in parsed_url:
+                for value in parsed_url.split('/'):
+                    if 'type' in value:
+                        values =  value.split('=')
+                        query = ''.join(values[2:])                        
+                
+                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&field_state_name_value={query}'
 
             print(api_url)
 
@@ -655,7 +706,7 @@ def summarise_page_endpoint():
             subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
 
             if subcategory_data:
-                answer = summarise_content(subcategory_data)               
+                answer = summarise_content(subcategory_data, language)               
                 return jsonify({'summary': answer}), 200
             else:
                 return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
@@ -665,7 +716,7 @@ def summarise_page_endpoint():
             return jsonify({'summary':'Failed to summarise the page. Try again!'}), 500 
 #-----------------------------------------------------------------------------
 
-    def handle_artifacts(parsed_url, page, nid):
+    def handle_artifacts(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/retrieved-artefacts-of-india'
             sub_category = parsed_url.split('/')[2].lower()
@@ -681,7 +732,7 @@ def summarise_page_endpoint():
                 subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
 
                 if subcategory_data:
-                    answer = summarise_content(subcategory_data)               
+                    answer = summarise_content(subcategory_data, language)               
                     return jsonify({'summary': answer}), 200
                 else:
                     return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
@@ -693,7 +744,7 @@ def summarise_page_endpoint():
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
 #-----------------------------------------------------------------------------
 
-    def handle_freedom_fighters(parsed_url, page, nid):
+    def handle_freedom_fighters(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/freedom-archive' 
             sub_category = parsed_url.split('/')[2].lower()
@@ -707,7 +758,10 @@ def summarise_page_endpoint():
                 api_url = f'https://icvtesting.nvli.in/rest-v1/forts-of-india/forts-and-freedom-struggle?page=0&&field_state_name_value='
             if sub_category == 'textile':
                 api_url = f'https://icvtesting.nvli.in/rest-v1/INDIGO-DYE-AND-REVOLT?page=0&&field_state_name_value='
-            
+            if sub_category == 'historic-cities':
+                city = parsed_url.split('/')[3].lower()
+                api_url = f'https://icvtesting.nvli.in/rest-v1/{city}/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
+    
             print(api_url)
 
             data = extract_page_content(api_url)
@@ -721,7 +775,7 @@ def summarise_page_endpoint():
                 subcategory_data = data
             
             if subcategory_data:
-                answer = summarise_content(subcategory_data)               
+                answer = summarise_content(subcategory_data, language)               
                 return jsonify({'summary': answer}), 200
             else:
                 return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
@@ -730,39 +784,51 @@ def summarise_page_endpoint():
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
-     
+#-----------------------------------------------------------------------------
+
+    # def handle_global_search(parsed_url, page, nid, language):
+
 
 # Function calling
 #-----------------------------------------------------------------------------
     try:
         parsed_url = urlparse(url).path
+        print('debug',parsed_url)
+
+        lang = 'hi' if parsed_url.split('/')[1] == 'lang=hi' else 'en'
+        print(lang)
+
+        if lang == 'hi':
+           parsed_url = parsed_url.replace('/lang=hi', '')
+
         segments = [s for s in parsed_url.split('/') if s]
         category, page, nid = parse_url_segments(segments)
+    
 
         if category == 'musical-instruments-of-india':
-            return handle_musical_instruments(parsed_url, page, nid)
+            return handle_musical_instruments(parsed_url, page, nid, language=lang)
         elif category == 'textiles-and-fabrics-of-india':
-            return handle_textiles(parsed_url, page, nid)
+            return handle_textiles(parsed_url, page, nid, language=lang)
         elif category == 'timeless-trends':
-            return handle_timeless_trends(parsed_url, page, nid)
+            return handle_timeless_trends(parsed_url, page, nid, language=lang)
         elif category == 'jewellery-of-the-nizams':
-            return handle_nizams(parsed_url, page, nid)
+            return handle_nizams(parsed_url, page, nid, language=lang)
         elif category == 'unesco':
-            return handle_unesco(parsed_url, page, nid)
+            return handle_unesco(parsed_url, page, nid, language=lang)
         elif category == 'forts-of-india':
-            return handle_forts(parsed_url, page, nid)
+            return handle_forts(parsed_url, page, nid, language=lang)
         elif category == 'ajanta-caves':
-            return handle_ajanta(parsed_url, page, nid)
+            return handle_ajanta(parsed_url, page, nid, language=lang)
         elif category == '3d-explorations':
-            return handle_virtual_walkthrough(parsed_url, page, nid)
+            return handle_virtual_walkthrough(parsed_url, page, nid, language=lang)
         elif category == 'districts-of-defiance':
-            return handle_DOD(parsed_url, page, nid)
+            return handle_DOD(parsed_url, page, nid, language=lang)
         elif category == 'retrieved-artefacts-of-india':
-            return handle_artifacts(parsed_url, page, nid)
+            return handle_artifacts(parsed_url, page, nid, language=lang)
         elif category == 'freedom-archive':
-            return handle_freedom_fighters(parsed_url, page, nid)
+            return handle_freedom_fighters(parsed_url, page, nid, language=lang)
         else:
-            return handle_cultural_chronicles(category, page, nid)
+            return handle_cultural_chronicles(category, page, nid, language=lang)
     except Exception as e:
             print(e)
 
@@ -774,4 +840,6 @@ def clear_memory():
     thread_id += 1
     return jsonify({"message": "Memory cleared successfully"}), 200
 
+if __name__ == '__main__':
+    app.run(debug = True)
 
