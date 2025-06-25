@@ -61,7 +61,7 @@ db = SQLDatabase.from_uri(f'sqlite:///all_categories_data-sqlite.db')
 
 # initalising an LLM
 llm = ChatGroq(
-    temperature = 0.3,
+    temperature = 0.1,
     model_name = 'llama3-70b-8192',
     callback_manager = CallbackManager([tracer])
 )
@@ -86,21 +86,22 @@ def add_data():
 
 # fetch similar titles
 def fetch_similar_titles(query, vector_store=vector_store, threshold=0.65):
-    result = vector_store.similarity_search_with_score(query=query, k=10)
+    result = vector_store.similarity_search_with_score(query=query, k=20)
     title_ids = [(title.id) for title, score in  result if score > 0.40]
+    print('title Ids',title_ids)
     return title_ids
     
 
 # generate SQL query
 def generate_sql_query(ids):
+    print('ids',ids)
     write_query = create_sql_query_chain(llm, db)
     execute_query = QuerySQLDataBaseTool(db=db)
 
     question = (
-        f"Generate a SQL query to retrieve all columns for the given primary keys: {ids}. "
-        "The 'index' column is the primary key. "
-        "Only return the SQL query, nothing else."
-        "Do not use LIMIT return all the records"
+            f"Strictly generate a sql query: Select * from Categories where idx in {ids}"
+              "No limit"
+
     )
 
     response = write_query.invoke({"question": question})
@@ -108,11 +109,14 @@ def generate_sql_query(ids):
     if isinstance(response, dict) and "query" in response:
         sql_query = response["query"]
     else:
-        match = re.search(r"SQLQuery:\s*(SELECT .*);?", response, re.DOTALL | re.IGNORECASE)
+        match = match = re.search(r"SQLQuery:\s*['\"]?(SELECT .*?)['\"]?$", response, re.DOTALL | re.IGNORECASE)
+
         if match:
             sql_query = match.group(1).strip()
         else:
             raise ValueError("SQL query could not be extracted.")
+        
+    print('sql query', sql_query)
 
     query_result = execute_query.invoke(sql_query)
     output = ast.literal_eval(query_result)
@@ -121,6 +125,8 @@ def generate_sql_query(ids):
 
     output_df = pd.DataFrame(output, columns=columns)
     return output_df
+
+
 
 
 
