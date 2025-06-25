@@ -15,6 +15,8 @@ import requests
 from urllib.parse import urlparse
 import json
 import tiktoken
+from sqlalchemy import create_engine, text
+
 
 app = Flask(__name__)
 
@@ -113,7 +115,6 @@ def greeting_answer(state:State):
       """ Your name is Bharti. You are an AI assistant for the Indian Culture Portal that deal with Indian Culture and History.
            When a greets you you should reply with a formal greeting.
 
-           From time to time you can a quirky response as well!
            Talk about your capabilities such as search through books, Q/A through the content.
            Do not give any content here
            Add emojis wherever necessary. But not much of it.
@@ -672,29 +673,16 @@ def summarise_page_endpoint():
     
     def handle_DOD(parsed_url, page, nid, language):            
         try:
-            if 'searchtext' not in parsed_url and 'type' not in parsed_url:
-                if 'Story' in parsed_url:
-                    api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3ADDR%20Story'
-                elif 'Traditions' in parsed_url:
-                    api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3ATraditions%20%26%20Art%20Forms'
-                elif 'Personality' in parsed_url:
-                    api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3APersonality'
-                elif 'Events' in parsed_url:
-                    api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3AEvents'
-                elif 'Treasures' in parsed_url:
-                    api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3AHidden%20Treasures'
-            elif 'searchtext' in parsed_url:
-                for value in parsed_url.split('/'):
-                    if 'searchtext' in value:
-                        query_text = value.split('=')[-1]
-                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&search_api_fulltext={query_text}&&field_state_name_value='
-            elif  'type' in parsed_url:
-                for value in parsed_url.split('/'):
-                    if 'type' in value:
-                        values =  value.split('=')
-                        query = ''.join(values[2:])                        
-                
-                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&field_state_name_value={query}'
+            if 'Story' in parsed_url:
+                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3ADDR%20Story'
+            elif 'Traditions' in parsed_url:
+                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3ATraditions%20%26%20Art%20Forms'
+            elif 'Personality' in parsed_url:
+                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3APersonality'
+            elif 'Events' in parsed_url:
+                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3AEvents'
+            elif 'Treasures' in parsed_url:
+                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3AHidden%20Treasures'
 
             print(api_url)
 
@@ -839,7 +827,3 @@ def clear_memory():
     global thread_id
     thread_id += 1
     return jsonify({"message": "Memory cleared successfully"}), 200
-
-if __name__ == '__main__':
-    app.run(debug = True)
-
