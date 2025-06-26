@@ -382,25 +382,46 @@ def summarise_page_endpoint():
 
 
     #------------------------------------------------------------------------------------
-    def handle_cultural_chronicles(category, page, nid, language):
-        def try_get_page(p):
-            api_url = f'https://icvtesting.nvli.in/rest-v1/{category}?page={p}'
+    def handle_snippets(parsed_url, page, nid, language):
+        try:
+            api_url = f'https://icvtesting.nvli.in/rest-v1/snippets?page={page if page != "" else 0}&&field_state_name_value='
+
             data = extract_page_content(api_url)
             if not data or 'results' not in data:
-                return None
-            return next((item for item in data['results'] if str(item.get('nid')) == str(nid)), None)
+                return jsonify({"summary": "No data found"}), 404
 
-        if page == '':
-            page = 0
+            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
 
-        matched_item = try_get_page(page) or try_get_page(1 if page == 0 else 0)
 
-        if matched_item:
-            answer = summarise_content(matched_item, language)
-            return jsonify({'summary': answer}), 200
-        else:
-            return jsonify({"summary": "No NID found to fetch data. Try another page"}), 404
-        
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+        except Exception as e:
+            print(e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
+#------------------------------------------------------------------------------------
+
+    def handle_stories(parsed_url, page, nid, language):
+        try:
+            api_url = f'https://icvtesting.nvli.in/rest-v1/stories-filter?page={page if page != "" else 0}&&field_state_name_value='
+
+            data = extract_page_content(api_url)
+            if not data or 'results' not in data:
+                return jsonify({"summary": "No data found"}), 404
+
+            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+        except Exception as e:
+            print(e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
+    
     #------------------------------------------------------------------------------------
     def handle_textiles(parsed_url, page, nid, language):
         try:
@@ -437,6 +458,21 @@ def summarise_page_endpoint():
                 state = parsed_url.split('/')[3].split('=')[-1]
                 api_url = f'{base_url}/textilestatemarker?page=0&&field_state_name_value={state}'
                 print('api_url', api_url)
+
+            elif (subcategory_type.lower()) == 'textiles-from-museum':
+                museum = parsed_url.split('/')[3].split('=')[-1]
+                print(museum)
+                if museum == 'National-Museum-New-Delhiss' or museum == 'National-Museum-New-Delhi':
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/national-museum?page={page}&&field_state_name_value='
+                elif museum == 'Indian-Museum-Kolkata':
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/indian-museum?page={page}&&field_state_name_value='
+                elif museum == 'Salar-Jung-Museum-Hyderabad':
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/salarjung-museum?page={page}&&field_state_name_value='
+                elif museum == 'Allahabad-Museum-Prayagraj':
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/ald-msm?page={page}&&field_state_name_value='
+                elif museum == 'Victoria-Memorial-Hall-Kolkata':
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/vmh?page={0}&&field_state_name_value='
+
 
             data = extract_page_content(api_url)
             if not data or 'results' not in data:
@@ -866,7 +902,6 @@ def summarise_page_endpoint():
                     return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
 #-----------------------------------------------------------------------------
             
-
     def handle_festivals(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-india' 
@@ -905,6 +940,7 @@ def summarise_page_endpoint():
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
+            
     # States of India
     def handle_states(parsed_url, page, nid, language):
         try:
@@ -1132,8 +1168,10 @@ def summarise_page_endpoint():
             return handle_classical_dances(parsed_url, page, nid, language=lang)
         elif category == 'historic-cities-of-india':
             return handle_historical_cities(parsed_url, page, nid, language=lang)
-        else:
-            return handle_cultural_chronicles(parsed_url, page, nid, language=lang)
+        elif category == 'snippets':
+            return handle_snippets(parsed_url, page, nid, language=lang)
+        elif category == 'stories':
+            return handle_stories(parsed_url, page, nid, language=lang)
     except Exception as e:
             print(e)
 
