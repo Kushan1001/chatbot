@@ -774,8 +774,137 @@ def summarise_page_endpoint():
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
 #-----------------------------------------------------------------------------
 
-    # def handle_global_search(parsed_url, page, nid, language):
+    def handle_food_and_culture(parsed_url, page, nid, language):
+        try:
+            base_url = 'https://icvtesting.nvli.in/rest-v1/food-and-culture'
+            sub_category = parsed_url.split('/')[2].lower()
+            if sub_category == 'cuisines-of-india':
+            
+                subcategory_data = [
+                        {
+                            "title": "The Food of Maharashtra: A Sweet and Tangy Journey",
+                            "snippet": "The Food of Maharashtra: A Sweet and Tangy Journey\n\n\n\n\n\n\n\n\n\n\nA Maharashtrian woman, by Raja Ravi Varma"
+                        },
+                        {
+                            "title": "Rajasthani Cuisine: A Fusion of Resilience, a Royal Past and Innovation",
+                            "snippet": "Rajasthani Cuisine: A Fusion of Resilience, a Royal Past and Innovation\n\n\n\n\n\n\nRajasthan, the land of royals, is one of the most popular tourist destinations of India. Every year, visitors from all over the world throng into this beautiful state on the north-western frontier of India to marvel at its fascinating landscape, colourful art and crafts, exotic songs and dances, and exquisite historical monuments. The food of this land is also equally amazing and delightful. Born out of the exigencies of arid land, a harsh climate and a war-torn past, the cuisine of Rajasthan truly captures the spirit of resilience as well as imagination of a people in the face of all odds."
+                        },
+                        {
+                            "title": "Goan Cuisine: A Confluence of Cultures ",
+                            "snippet": "Goan Cuisine: A Confluence of Cultures\n\n\n\n\n\n\nThe unique cuisine of Goa developed out of a merger of various cultures that it came into contact with over the centuries such as the Portuguese, Arab, Brazilian, African, French, Konkani, Malabari, Malaysian and Chinese. The three major communities of Goa - Hindus, Muslims, and Christians, contribute to the culinary tradition in their own manner. The Konkan farmers and fishermen consume fish and rice on a wide scale. The Christian community patronises items such as beef, seafood, and pork. The intermixing of multiple cultural elements is mirrored within the cuisine of Goa in a distinctive mix of richness and subtlety."
+                        },
+                        {
+                            "title": "Kerala Cuisine: A Melting Pot ",
+                            "snippet": "Kerala Cuisine: A Melting Pot\n\n\n\n\n\n\nKerala, in the south-western part of India, is known for its rich heritage and cultural diversity. Situated along the Malabar coast, Kerala has had regular interaction with the West since ancient times. From the coming of the Arab traders to the Portuguese, and later the British, Kerala has witnessed it all. This greatly influenced the socio-cultural fabric of the region, making it one of the most diverse states of India."
+                        },
+                        {
+                            "title": "Andhra Cuisine: A Symphony of Spices",
+                            "snippet": "Andhra Cuisine: A Symphony of Spices\n\n\n\n\n\n\n\n\nAn Andhra platter. Image source: Wikimedia Commons"
+                        },
+                        {
+                            "title": "The Cuisine of Tamil Nadu: Beyond Sambar and Filter Coffee",
+                            "snippet": "The Cuisine of Tamil Nadu: Beyond Sambar and Filter Coffee\n\n\n\n\nTamil Nadu, the southern-most state of India, is known for its rich cultural heritage and magnificent temples that stand tall in its various cities and towns. Culture is deeply rooted among the Tamilians with most of them involved in one art form or the other like Carnatic music or classical dance, or even preparing traditional food items in the strictly prescribed manner. The cuisine of Tamil Nadu is a reflection of the various influences that the state has come to assimilate over the centuries. From the early Cholas to the Marathas of Tanjore, each dynasty left a mark on this exquisite cuisine. With an equal number of vegetarian and non-vegetarian dishes, this cuisine is famous for its simplicity, rich flavours, and generous use of spices.\n\n\n\n\n\n\nGeography and staples"
+                        },
+                        {
+                            "title": "Lakshadweep Cuisine: The Sea on a Plate ",
+                            "snippet": "Lakshadweep Cuisine: The Sea on a Plate\n\n\n\n\n\n\nLakshadweep, a group of 36 islands, is located off the coast of Kerala. The term “lakshadweep” literally means “thousand islands” in Malayalam and Sanskrit. Out of the many small islands, only 10 continue to be inhabited and only a few are allowed to be visited by tourists. The inhabited islands are Agatti, Kalpeni, Kadmat, Kiltan, Cheltat, Amini, Bitra, Androth, Minicoy and Kavaratti, (the capital). Known for its clear blue waters and simple lifestyle, this Union Territory of India never fails to attract tourists from various parts of the globe."
+                        },
+                        {
+                            "title": "Odisha",
+                            "snippet": "Odisha\n\n\n\n\n\n\n \n\n\n\n\nOdisha Cuisine"
+                        },
+                        {
+                            "title": "The Land of Bihar and its Wholesome Food ",
+                            "snippet": "The Land of Bihar and its Wholesome Food\n\n\n\n\n\n\nThe state of Bihar is situated in the eastern region of the Indian mainland. This landlocked region is famous for its ancient traditions and heritage sites including Bodh Gaya, where Buddha attained enlightenment, the ancient Nalanda University, for the sweet and lilting Bhojpuri language, and much more. While Bihari cuisine has many distinctive dishes, unfortunately, they are not widely known in the rest of the country."
+                        },
+                        {
+                            "title": "Manipuri Cuisine: A Unique Experience in Earthy Flavours",
+                            "snippet": "Manipuri Cuisine: A Unique Experience in Earthy Flavours\n\n\n\n\n\n\nThe cuisine of Manipur reflects the geographical and socio-cultural peculiarities of this land situated in the North-Eastern part of the Indian subcontinent. The culinary fare of this region reflects the intimate connection of its people with nature. With an exciting ensemble of flavours ranging from plain to piquant, Manipuri food is an absolute delight to the senses."
+                        },
+                        {
+                            "title": "The Culinary Treasures of Sikkim",
+                            "snippet": "The Culinary Treasures of Sikkim\n\n\n\n\n\n\nThe erstwhile Himalayan kingdom of Sikkim became part of the Indian Union in 1975. As part of the Eastern Himalayas, the hilly terrain of Sikkim rises from the tropical jungles at the foothills and ascends to high alpine valleys and lofty peaks. Kanchenjunga, the third highest peak in the world is located at the Singalila range which forms a boundary between Nepal and Sikkim. This mountain state is bounded by Tibet on the north, Bhutan on the east and south and Nepal on the west. This particular location of Sikkim has given the state a multicultural and multi-ethnic character. The main ethnic groups in the Sikkim hills are the Lepchas, Bhutias and Nepalis and accordingly the cuisine of Sikkim is representative of these communities. Over time communities from the mainland have migrated to Sikkim and have brought with them their special foods to the hills. The food culture in the Eastern Himalayas of Sikkim has evolved over a period of time based on environmental, social and cultural factors and certain dishes have transcended cultural and territorial borders and have come to be embraced by all communities in Sikkim. These include dishes like the \npatlesishnu\n or \nsouchya\n (nettle soup), \nthukpa\n (wheat noodle soup) and \ntiteningro\n (fiddlehead fern curry with \nchurpi\n or cottage cheese)."
+                        },
+                        {
+                            "title": "Arunachalee Cuisine: Frontier Fare",
+                            "snippet": "Arunachalee Cuisine: Frontier Fare\n\n\n\n\n\n\nThe Indian state of Arunachal Pradesh, formerly a part of the North East Frontier Agency or NEFA, is crisscrossed by five big rivers, the T\nirap, Lohit, Siang, Subansiri,\n and \nKameng\n. This large territory has rich flora and fauna thanks to the climatic conditions that range from temperate to tropical to alpine. The luxuriant growth of its forest cover can be attributed to the heavy rainfall it receives and the associated high levels of humidity. As this most expansive North-eastern state is endowed with rich bio-resources and abundant forest cover, the majority of its tribal population lives in or in close proximity to the forests and depends on the forest produces for its sustenance. This ‘Land of the Rising Sun’ in the Eastern Himalayas is bountiful not only in natural resources, but is also home to around twenty-six major tribal communities, like the \nMonpa, Sherdukpen, Aka, Khowa, Apatani, Khampti,\n and \nGalo\n that have their own distinct languages, dances, music, oral traditions, arts, crafts, and cuisine."
+                        },
+                        {
+                            "title": "Meghalaya Cuisine",
+                            "snippet": "Meghalaya Cuisine\n\n\n\n\n\n\n\n\n\n\nSohra (Cherrapunji), Meghalaya. Image Source: Biri Jumsi"
+                        },
+                        {
+                            "title": "Flavours from the Axomiya Akholghor",
+                            "snippet": "Flavours from the Axomiya Akholghor\n\n\n\n\n\n\nThe Axomiya Akholghor (traditional Assamese kitchen) has churned out a myriad of earthy delicacies that reflect the ingenuity of the people of this ecologically rich land. Yet, Assamese cuisine is still a largely uncharted territory for people outside North-East India. The Assamese are often credited with having an “adventurous palate”, a notion which deters many (cautious) food lovers from trying out this wholesome cuisine. However, Assamese cuisine is not as removed from culinary traditions in other parts of India, as it is sometimes made out to be. At the same time, for a connoisseur of food, this cuisine has a lot of novelty to offer. The food of this land is a precious blend of the ordinary and the unique."
+                        },
+                        {
+                            "title": "Naga Cuisine (A Feast for the Senses)",
+                            "snippet": "Naga Cuisine\n\n(A Feast for the Senses)"
+                        },
+                        {
+                            "title": "Thevo Chu, Pork meat with Axone",
+                            "snippet": ""
+                        },
+                        {
+                            "title": "The Mizo Food Ethic: Simplicity and Selflessness",
+                            "snippet": "The Mizo Food Ethic: Simplicity and Selflessness\n\n\n\n\n\n\n\n\n\n\nA traditional Mizo spread"
+                        },
+                        {
+                            "title": "Tripura Cuisine",
+                            "snippet": "Tripura Cuisine"
+                        }
+                    ]
 
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
+
+        except Exception as e:
+                    print(e)
+                    return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+#-----------------------------------------------------------------------------
+            
+
+    def handle_festivals(parsed_url, page, nid, language):
+        try:
+            base_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-india' 
+            sub_category = parsed_url.split('/')[2].lower()
+
+            if sub_category == 'fairs-and-pilgrimages':
+                api_url = f'https://icvtesting.nvli.in/rest-v1/festivals-of-india/fairs-and-pilgrimages?page={page if page != "" else 0}&&field_state_name_value='
+            if sub_category == 'folk-festivals':
+                city = parsed_url.split('/')[3].lower()
+                if city == 'honoring-deities':
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Honouring-Deities?page=0&&field_state_name_value='
+                if city == 'social-traditions':
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Social-Traditions?page=0&&field_state_name_value='
+                if city == 'celebrating-nature':
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Celebrating-Nature?page=0&&field_state_name_value='
+            if sub_category == 'tribal-festivals':
+                api_url = f'https://icvtesting.nvli.in/rest-v1/festivals-of-India/tribal-festivals/worshipping-nature?page=0&&field_state_name_value='
+           
+            print(api_url)
+
+            data = extract_page_content(api_url)
+
+            if not data or 'results' not in data:
+                return jsonify({"summary": "No data found"}), 404
+
+            if nid:
+                subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+            else:
+                subcategory_data = data
+            
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404            
+        except Exception as e:
+            print(e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
 
 # Function calling
 #-----------------------------------------------------------------------------
@@ -815,12 +944,15 @@ def summarise_page_endpoint():
             return handle_artifacts(parsed_url, page, nid, language=lang)
         elif category == 'freedom-archive':
             return handle_freedom_fighters(parsed_url, page, nid, language=lang)
+        elif category == 'food-and-culture':
+            return handle_food_and_culture(parsed_url, page, nid, language=lang)
+        elif category == 'festivals-of-india':
+            return handle_festivals(parsed_url, page, nid, language=lang)
         else:
             return handle_cultural_chronicles(category, page, nid, language=lang)
     except Exception as e:
             print(e)
-
-
+            
 #------------------------------------------------------------------------------------
 @app.get('/clear_memory')
 def clear_memory():
