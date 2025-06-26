@@ -1054,6 +1054,26 @@ def summarise_page_endpoint():
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+#-----------------------------------------------------------------------------
+
+def handle_historical_cities(parsed_url, page, nid, language):
+        try:
+            api_url = f'https://icvtesting.nvli.in/rest-v1/historic-cities?page=0&&field_state_name_value='
+            print('api_url',api_url)
+            data = extract_page_content(api_url)
+            if not data or 'results' not in data:
+                return jsonify({"summary": "No data found"}), 404
+
+            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+        except Exception as e:
+            print(e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
 
 
 # Function calling
@@ -1110,6 +1130,8 @@ def summarise_page_endpoint():
             return handle_healing_through_the_ages(parsed_url, page, nid, language=lang)
         elif category == 'classical-dances-of-india':
             return handle_classical_dances(parsed_url, page, nid, language=lang)
+        elif category == 'historic-cities-of-india':
+            return handle_historical_cities(parsed_url, page, nid, language=lang)
         else:
             return handle_cultural_chronicles(parsed_url, page, nid, language=lang)
     except Exception as e:
