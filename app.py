@@ -1056,7 +1056,7 @@ def summarise_page_endpoint():
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
 #-----------------------------------------------------------------------------
 
-def handle_historical_cities(parsed_url, page, nid, language):
+    def handle_historical_cities(parsed_url, page, nid, language):
         try:
             api_url = f'https://icvtesting.nvli.in/rest-v1/historic-cities?page=0&&field_state_name_value='
             print('api_url',api_url)
