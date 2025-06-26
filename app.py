@@ -905,6 +905,156 @@ def summarise_page_endpoint():
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
+    # States of India
+    def handle_states(parsed_url, page, nid, language):
+        try:
+            base_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-india' 
+            category = parsed_url.split('/')[2].lower().strip()
+            sub_category = parsed_url.split('/')[3].lower().strip()
+            section = parsed_url.split('/')[4].lower().strip()
+
+            if category == 'north-east-archive':
+                if sub_category == 'unsung-heroes':
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/north-east-archive/unsung-heroes?page=0&&field_state_name_value=?page={page if page != "" else 0}&&field_state_name_value='
+                elif sub_category == 'tales-from-the-hinterland':
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/tales-from-the-hinterland?page={page if page != "" else 0}&&field_state_name_value='
+
+            if category == 'east-india':
+                if sub_category == 'bihar':
+                    if section == 'tidbits-tales-and-trivis':
+                        api_url = f'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/tidbits-tales-trivia?page=0&&field_state_name_value='
+                    elif section == 'bihar-through-traveller-s-gaze':
+                        api_url = 'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/bihar-through?page=0&&field_state_name_value='
+                    elif section == 'art-and-architecture':
+                        api_url = 'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/art-architecture?page=0&&field_state_name_value='
+                    elif section == 'freedom-archive':
+                        api_url  = 'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/freedom-archive?page=0&&field_state_name_value='
+
+                print(api_url)
+
+            data = extract_page_content(api_url)
+
+            if not data or 'results' not in data:
+                return jsonify({"summary": "No data found"}), 404
+
+            if nid:
+                subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+            else:
+                subcategory_data = data
+            
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404            
+        except Exception as e:
+            print(e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
+#-----------------------------------------------------------------------------
+
+    # Iconic battles
+    def handle_iconic_battles(parsed_url, page, nid, language):
+        try:
+            api_url = f'https://icvtesting.nvli.in/rest-v1/iconic-battle-of-india/detail?page={page if page != "" else 0}&&field_state_name_value='
+
+            data = extract_page_content(api_url)
+            if not data or 'results' not in data:
+                return jsonify({"summary": "No data found"}), 404
+
+            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+        except Exception as e:
+            print(e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
+#-----------------------------------------------------------------------------
+
+    # lengendary figures
+    def handle_legendary_figures(parsed_url, page, nid, language):
+        try:
+            api_url = f'https://icvtesting.nvli.in/rest-v1/legendary-figure/kings-queens?page={page if page != "" else 0}&&field_state_name_value='
+
+            data = extract_page_content(api_url)
+            if not data or 'results' not in data:
+                return jsonify({"summary": "No data found"}), 404
+
+            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+        except Exception as e:
+            print(e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
+#-----------------------------------------------------------------------------
+
+    # folk tales of India
+    def handle_folktalesofindia(parsed_url, page, nid, language):
+        try:
+            api_url = f'https://icvtesting.nvli.in/rest-v1/fairytales-landing-main?page={page if page != "" else 0}&&field_state_name_value='
+
+            data = extract_page_content(api_url)
+            if not data or 'results' not in data:
+                return jsonify({"summary": "No data found"}), 404
+
+            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+        except Exception as e:
+            print(e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
+#-----------------------------------------------------------------------------
+    
+    # healing through ages
+    def handle_healing_through_the_ages(parsed_url, page, nid, language):
+        try:
+            api_url = f'https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/pan-india-traditions?page={page if page != "" else 0}&&field_state_name_value='
+
+            data = extract_page_content(api_url)
+            if not data or 'results' not in data:
+                return jsonify({"summary": "No data found"}), 404
+
+            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+        except Exception as e:
+            print(e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+#-----------------------------------------------------------------------------
+    # classical dances
+    def handle_classical_dances(parsed_url, page, nid, language):
+        try:
+            api_url = f'https://icvtesting.nvli.in/rest-v1/classical-dances-details?page={page if page != "" else 0}&&field_state_name_value='
+            print('api_url',api_url)
+            data = extract_page_content(api_url)
+            if not data or 'results' not in data:
+                return jsonify({"summary": "No data found"}), 404
+
+            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+        except Exception as e:
+            print(e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+
 
 # Function calling
 #-----------------------------------------------------------------------------
@@ -948,10 +1098,23 @@ def summarise_page_endpoint():
             return handle_food_and_culture(parsed_url, page, nid, language=lang)
         elif category == 'festivals-of-india':
             return handle_festivals(parsed_url, page, nid, language=lang)
+        elif category == 'states':
+            return handle_states(parsed_url, page, nid, language=lang)
+        elif category == 'iconic-battles-of-india':
+            return handle_iconic_battles(parsed_url, page, nid, language=lang)
+        elif category == 'handle_legendary_figures':
+            return handle_legendary_figures(parsed_url, page, nid, language=lang)
+        elif category == 'folktalesofindia':
+            return handle_folktalesofindia(parsed_url, page, nid, language=lang)
+        elif category == 'healing-through-the-ages':
+            return handle_healing_through_the_ages(parsed_url, page, nid, language=lang)
+        elif category == 'classical-dances-of-india':
+            return handle_classical_dances(parsed_url, page, nid, language=lang)
         else:
-            return handle_cultural_chronicles(category, page, nid, language=lang)
+            return handle_cultural_chronicles(parsed_url, page, nid, language=lang)
     except Exception as e:
             print(e)
+
             
 #------------------------------------------------------------------------------------
 @app.get('/clear_memory')
