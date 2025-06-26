@@ -473,6 +473,11 @@ def summarise_page_endpoint():
                 elif museum == 'Victoria-Memorial-Hall-Kolkata':
                     api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/vmh?page={0}&&field_state_name_value='
 
+            elif (subcategory_type == 'type-of-textiles'):
+                section = parsed_url.split('/')[3].lower()
+                api_url = f'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/type-of-textile/{section}?page=0&&field_state_name_value='
+                print(api_url)
+
 
             data = extract_page_content(api_url)
             if not data or 'results' not in data:
