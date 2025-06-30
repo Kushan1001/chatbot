@@ -994,7 +994,27 @@ def summarise_page_endpoint():
                     if section == 'tidbits-tales-and-trivis':
                         api_url = f'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/tidbits-tales-trivia?page=0&&field_state_name_value='
                     elif section == 'bihar-through-traveller-s-gaze':
-                        api_url = 'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/bihar-through?page=0&&field_state_name_value='
+                        api_url = 'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/bihar-through?page=0&&field_state_name_value='                        
+                        
+                        content = []
+                        
+                        data = extract_page_content(api_url)
+                        if not data or 'results' not in data:
+                            return jsonify({"summary": "No data found"}), 404
+
+                        if nid:
+                            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+                        else:
+                            subcategory_data = data
+                    
+                            for res in subcategory_data['results']:
+                                first_100_words = ' '.join(res['body'].split()[:100])
+                                content.append(res['title'] + ' ' + first_100_words + '\n')
+
+                            if content:
+                                answer = summarise_content(content, language) 
+                                return jsonify({'summary': answer}), 200              
+
                     elif section == 'art-and-architecture':
                         api_url = 'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/art-architecture?page=0&&field_state_name_value='
                     elif section == 'freedom-archive':
