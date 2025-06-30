@@ -37,6 +37,15 @@ class State(TypedDict):
 
 graph_builder=StateGraph(State)
 
+def clean_html_truncate(html_text, max_words=250):
+    """Utility to strip HTML and truncate."""
+    soup = BeautifulSoup(html_text or "", "html.parser")
+    plain_text = soup.get_text(separator=" ")
+    words = plain_text.split()
+    if len(words) > max_words:
+        return " ".join(words[:max_words])
+    return plain_text
+
 def answer_query(state:State):
     if state['intent'] == "Greeting":
         print("Debug: Greeting detected, skipping SQL query.")
@@ -59,6 +68,21 @@ def answer_query(state:State):
     else:
         print("Debug: Unknown intent, returning empty context.")
         return {'context': ''}  
+    
+
+def clean_and_truncate_html(html_text, word_limit=100):
+    # Remove HTML tags
+    clean_text = re.sub('<.*?>', '', html_text)
+    # Replace HTML entities
+    clean_text = clean_text.replace("&nbsp;", " ").strip()
+    # Remove multiple spaces and line breaks
+    clean_text = re.sub(r'\s+', ' ', clean_text)
+    # Split into words
+    words = clean_text.split()
+    # Take first N words
+    truncated_words = words[:word_limit]
+    # Join back to string
+    return ' '.join(truncated_words)
 
 def identify_intent(state:State):
     prompt = f"""
@@ -218,7 +242,7 @@ def query_answer(state: State):
         }
 
     
-def truncate_text(text, max_tokens=1300):
+def truncate_text(text, max_tokens=850):
     words = text.split()
     return ' '.join(words[:max_tokens])
 
@@ -422,8 +446,11 @@ def summarise_page_endpoint():
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
     
-    #------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
+    
+    # Textiles
     def handle_textiles(parsed_url, page, nid, language):
+        
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india'
             subcategory_type = parsed_url.split('/')[2].lower()
@@ -453,12 +480,11 @@ def summarise_page_endpoint():
                 api_url = f'{base_url}/artifacts?page=0&&field_state_name_value='
                 print('api_url', api_url)
 
-
             elif subcategory_type == 'textiles-and-fabrics-of-indian-state':
                 state = parsed_url.split('/')[3].split('=')[-1]
                 api_url = f'{base_url}/textilestatemarker?page=0&&field_state_name_value={state}'
                 print('api_url', api_url)
-
+            
             elif (subcategory_type.lower()) == 'textiles-from-museum':
                 museum = parsed_url.split('/')[3].split('=')[-1]
                 print(museum)
@@ -472,7 +498,7 @@ def summarise_page_endpoint():
                     api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/ald-msm?page={page}&&field_state_name_value='
                 elif museum == 'Victoria-Memorial-Hall-Kolkata':
                     api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/vmh?page={0}&&field_state_name_value='
-
+            
             elif (subcategory_type == 'type-of-textiles'):
                 section = parsed_url.split('/')[3].lower()
                 api_url = f'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/type-of-textile/{section}?page=0&&field_state_name_value='
@@ -498,6 +524,8 @@ def summarise_page_endpoint():
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
 
     #------------------------------------------------------------------------------------
+    
+    # Timelss Trends
     def handle_timeless_trends(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends'
@@ -544,6 +572,8 @@ def summarise_page_endpoint():
 
 
     #------------------------------------------------------------------------------------
+    
+    # Nizams
     def handle_nizams(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/jewellery-of-the-nizams'
@@ -583,6 +613,8 @@ def summarise_page_endpoint():
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
 
 #-----------------------------------------------------------------------------
+    
+    # UNESCO
     def handle_unesco(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/unesco'
@@ -610,6 +642,8 @@ def summarise_page_endpoint():
         
 
 #-----------------------------------------------------------------------------
+    
+    # Forts of India
     def handle_forts(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/forts-of-india'
@@ -647,7 +681,7 @@ def summarise_page_endpoint():
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
 #-----------------------------------------------------------------------------
 
-
+    # Ajanta Caves
     def handle_ajanta(parsed_url, data, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/ajanta-landing-page'
@@ -685,7 +719,7 @@ def summarise_page_endpoint():
                     return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
 #-----------------------------------------------------------------------------
 
-
+    # Virtual Walkthrough
     def handle_virtual_walkthrough(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1'
@@ -712,6 +746,7 @@ def summarise_page_endpoint():
                     return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
 #-----------------------------------------------------------------------------
     
+    # DOD
     def handle_DOD(parsed_url, page, nid, language):            
         try:
             if 'Story' in parsed_url:
@@ -745,6 +780,7 @@ def summarise_page_endpoint():
             return jsonify({'summary':'Failed to summarise the page. Try again!'}), 500 
 #-----------------------------------------------------------------------------
 
+    # Artifacts
     def handle_artifacts(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/retrieved-artefacts-of-india'
@@ -773,6 +809,7 @@ def summarise_page_endpoint():
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
 #-----------------------------------------------------------------------------
 
+    # Freedom Fighters
     def handle_freedom_fighters(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/freedom-archive' 
@@ -807,114 +844,102 @@ def summarise_page_endpoint():
                 answer = summarise_content(subcategory_data, language)               
                 return jsonify({'summary': answer}), 200
             else:
-                return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
-
-        
+                return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404            
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
 #-----------------------------------------------------------------------------
-
+    
+    # Food and Culture
     def handle_food_and_culture(parsed_url, page, nid, language):
         try:
-            base_url = 'https://icvtesting.nvli.in/rest-v1/food-and-culture'
             sub_category = parsed_url.split('/')[2].lower()
-            if sub_category == 'cuisines-of-india':
-            
-                subcategory_data = [
-                        {
-                            "title": "The Food of Maharashtra: A Sweet and Tangy Journey",
-                            "snippet": "The Food of Maharashtra: A Sweet and Tangy Journey\n\n\n\n\n\n\n\n\n\n\nA Maharashtrian woman, by Raja Ravi Varma"
-                        },
-                        {
-                            "title": "Rajasthani Cuisine: A Fusion of Resilience, a Royal Past and Innovation",
-                            "snippet": "Rajasthani Cuisine: A Fusion of Resilience, a Royal Past and Innovation\n\n\n\n\n\n\nRajasthan, the land of royals, is one of the most popular tourist destinations of India. Every year, visitors from all over the world throng into this beautiful state on the north-western frontier of India to marvel at its fascinating landscape, colourful art and crafts, exotic songs and dances, and exquisite historical monuments. The food of this land is also equally amazing and delightful. Born out of the exigencies of arid land, a harsh climate and a war-torn past, the cuisine of Rajasthan truly captures the spirit of resilience as well as imagination of a people in the face of all odds."
-                        },
-                        {
-                            "title": "Goan Cuisine: A Confluence of Cultures ",
-                            "snippet": "Goan Cuisine: A Confluence of Cultures\n\n\n\n\n\n\nThe unique cuisine of Goa developed out of a merger of various cultures that it came into contact with over the centuries such as the Portuguese, Arab, Brazilian, African, French, Konkani, Malabari, Malaysian and Chinese. The three major communities of Goa - Hindus, Muslims, and Christians, contribute to the culinary tradition in their own manner. The Konkan farmers and fishermen consume fish and rice on a wide scale. The Christian community patronises items such as beef, seafood, and pork. The intermixing of multiple cultural elements is mirrored within the cuisine of Goa in a distinctive mix of richness and subtlety."
-                        },
-                        {
-                            "title": "Kerala Cuisine: A Melting Pot ",
-                            "snippet": "Kerala Cuisine: A Melting Pot\n\n\n\n\n\n\nKerala, in the south-western part of India, is known for its rich heritage and cultural diversity. Situated along the Malabar coast, Kerala has had regular interaction with the West since ancient times. From the coming of the Arab traders to the Portuguese, and later the British, Kerala has witnessed it all. This greatly influenced the socio-cultural fabric of the region, making it one of the most diverse states of India."
-                        },
-                        {
-                            "title": "Andhra Cuisine: A Symphony of Spices",
-                            "snippet": "Andhra Cuisine: A Symphony of Spices\n\n\n\n\n\n\n\n\nAn Andhra platter. Image source: Wikimedia Commons"
-                        },
-                        {
-                            "title": "The Cuisine of Tamil Nadu: Beyond Sambar and Filter Coffee",
-                            "snippet": "The Cuisine of Tamil Nadu: Beyond Sambar and Filter Coffee\n\n\n\n\nTamil Nadu, the southern-most state of India, is known for its rich cultural heritage and magnificent temples that stand tall in its various cities and towns. Culture is deeply rooted among the Tamilians with most of them involved in one art form or the other like Carnatic music or classical dance, or even preparing traditional food items in the strictly prescribed manner. The cuisine of Tamil Nadu is a reflection of the various influences that the state has come to assimilate over the centuries. From the early Cholas to the Marathas of Tanjore, each dynasty left a mark on this exquisite cuisine. With an equal number of vegetarian and non-vegetarian dishes, this cuisine is famous for its simplicity, rich flavours, and generous use of spices.\n\n\n\n\n\n\nGeography and staples"
-                        },
-                        {
-                            "title": "Lakshadweep Cuisine: The Sea on a Plate ",
-                            "snippet": "Lakshadweep Cuisine: The Sea on a Plate\n\n\n\n\n\n\nLakshadweep, a group of 36 islands, is located off the coast of Kerala. The term “lakshadweep” literally means “thousand islands” in Malayalam and Sanskrit. Out of the many small islands, only 10 continue to be inhabited and only a few are allowed to be visited by tourists. The inhabited islands are Agatti, Kalpeni, Kadmat, Kiltan, Cheltat, Amini, Bitra, Androth, Minicoy and Kavaratti, (the capital). Known for its clear blue waters and simple lifestyle, this Union Territory of India never fails to attract tourists from various parts of the globe."
-                        },
-                        {
-                            "title": "Odisha",
-                            "snippet": "Odisha\n\n\n\n\n\n\n \n\n\n\n\nOdisha Cuisine"
-                        },
-                        {
-                            "title": "The Land of Bihar and its Wholesome Food ",
-                            "snippet": "The Land of Bihar and its Wholesome Food\n\n\n\n\n\n\nThe state of Bihar is situated in the eastern region of the Indian mainland. This landlocked region is famous for its ancient traditions and heritage sites including Bodh Gaya, where Buddha attained enlightenment, the ancient Nalanda University, for the sweet and lilting Bhojpuri language, and much more. While Bihari cuisine has many distinctive dishes, unfortunately, they are not widely known in the rest of the country."
-                        },
-                        {
-                            "title": "Manipuri Cuisine: A Unique Experience in Earthy Flavours",
-                            "snippet": "Manipuri Cuisine: A Unique Experience in Earthy Flavours\n\n\n\n\n\n\nThe cuisine of Manipur reflects the geographical and socio-cultural peculiarities of this land situated in the North-Eastern part of the Indian subcontinent. The culinary fare of this region reflects the intimate connection of its people with nature. With an exciting ensemble of flavours ranging from plain to piquant, Manipuri food is an absolute delight to the senses."
-                        },
-                        {
-                            "title": "The Culinary Treasures of Sikkim",
-                            "snippet": "The Culinary Treasures of Sikkim\n\n\n\n\n\n\nThe erstwhile Himalayan kingdom of Sikkim became part of the Indian Union in 1975. As part of the Eastern Himalayas, the hilly terrain of Sikkim rises from the tropical jungles at the foothills and ascends to high alpine valleys and lofty peaks. Kanchenjunga, the third highest peak in the world is located at the Singalila range which forms a boundary between Nepal and Sikkim. This mountain state is bounded by Tibet on the north, Bhutan on the east and south and Nepal on the west. This particular location of Sikkim has given the state a multicultural and multi-ethnic character. The main ethnic groups in the Sikkim hills are the Lepchas, Bhutias and Nepalis and accordingly the cuisine of Sikkim is representative of these communities. Over time communities from the mainland have migrated to Sikkim and have brought with them their special foods to the hills. The food culture in the Eastern Himalayas of Sikkim has evolved over a period of time based on environmental, social and cultural factors and certain dishes have transcended cultural and territorial borders and have come to be embraced by all communities in Sikkim. These include dishes like the \npatlesishnu\n or \nsouchya\n (nettle soup), \nthukpa\n (wheat noodle soup) and \ntiteningro\n (fiddlehead fern curry with \nchurpi\n or cottage cheese)."
-                        },
-                        {
-                            "title": "Arunachalee Cuisine: Frontier Fare",
-                            "snippet": "Arunachalee Cuisine: Frontier Fare\n\n\n\n\n\n\nThe Indian state of Arunachal Pradesh, formerly a part of the North East Frontier Agency or NEFA, is crisscrossed by five big rivers, the T\nirap, Lohit, Siang, Subansiri,\n and \nKameng\n. This large territory has rich flora and fauna thanks to the climatic conditions that range from temperate to tropical to alpine. The luxuriant growth of its forest cover can be attributed to the heavy rainfall it receives and the associated high levels of humidity. As this most expansive North-eastern state is endowed with rich bio-resources and abundant forest cover, the majority of its tribal population lives in or in close proximity to the forests and depends on the forest produces for its sustenance. This ‘Land of the Rising Sun’ in the Eastern Himalayas is bountiful not only in natural resources, but is also home to around twenty-six major tribal communities, like the \nMonpa, Sherdukpen, Aka, Khowa, Apatani, Khampti,\n and \nGalo\n that have their own distinct languages, dances, music, oral traditions, arts, crafts, and cuisine."
-                        },
-                        {
-                            "title": "Meghalaya Cuisine",
-                            "snippet": "Meghalaya Cuisine\n\n\n\n\n\n\n\n\n\n\nSohra (Cherrapunji), Meghalaya. Image Source: Biri Jumsi"
-                        },
-                        {
-                            "title": "Flavours from the Axomiya Akholghor",
-                            "snippet": "Flavours from the Axomiya Akholghor\n\n\n\n\n\n\nThe Axomiya Akholghor (traditional Assamese kitchen) has churned out a myriad of earthy delicacies that reflect the ingenuity of the people of this ecologically rich land. Yet, Assamese cuisine is still a largely uncharted territory for people outside North-East India. The Assamese are often credited with having an “adventurous palate”, a notion which deters many (cautious) food lovers from trying out this wholesome cuisine. However, Assamese cuisine is not as removed from culinary traditions in other parts of India, as it is sometimes made out to be. At the same time, for a connoisseur of food, this cuisine has a lot of novelty to offer. The food of this land is a precious blend of the ordinary and the unique."
-                        },
-                        {
-                            "title": "Naga Cuisine (A Feast for the Senses)",
-                            "snippet": "Naga Cuisine\n\n(A Feast for the Senses)"
-                        },
-                        {
-                            "title": "Thevo Chu, Pork meat with Axone",
-                            "snippet": ""
-                        },
-                        {
-                            "title": "The Mizo Food Ethic: Simplicity and Selflessness",
-                            "snippet": "The Mizo Food Ethic: Simplicity and Selflessness\n\n\n\n\n\n\n\n\n\n\nA traditional Mizo spread"
-                        },
-                        {
-                            "title": "Tripura Cuisine",
-                            "snippet": "Tripura Cuisine"
-                        }
-                    ]
 
-            if subcategory_data:
-                answer = summarise_content(subcategory_data, language)               
+            # If "cuisines-of-india"
+            if sub_category == 'cuisines-of-india':
+                # Static data for Cuisines of India
+                subcategory_data = [
+                        "This page contains information about cusines of different greographic regions of India. Such as Rajasthan in West. Bihar in the East. Kerala and Andhra in the South. Maharashtra in the Central India. Apart from thatb it also contains info about cusines from various North Eastern States. "
+                    
+                ]
+
+                if not subcategory_data:
+                    return jsonify({"summary": "No data found"}), 404
+
+                # Summarise the static data
+                answer = summarise_content(subcategory_data, language)
+                return jsonify({"summary": answer}), 200
+
+            # If "royal-table"
+            if sub_category == 'royal-table':
+                api_url = 'https://icvtesting.nvli.in/rest-v1/cuisine-royal-table?page=0&field_state_name_value='
+                data = extract_page_content(api_url)
+
+                if not data or 'results' not in data:
+                    return jsonify({"summary": "No data found"}), 404
+
+                # Get the matching NID if specified
+                if nid:
+                    subcategory_data = next(
+                        (entry for entry in data['results'] if str(entry.get('nid')) == str(nid)),
+                        None
+                    )
+                    if not subcategory_data:
+                        return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
+                else:
+                    subcategory_data = data['results']
+
+                # Summarise
+                answer = summarise_content(subcategory_data, language)
                 return jsonify({'summary': answer}), 200
-            else:
-                return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
+            
+            if sub_category == 'stirring-through-time':
+                api_url = 'https://icvtesting.nvli.in/rest-v1/evolution-cuisine?page=0&&field_state_name_value='
+                data = extract_page_content(api_url)
+
+                if not data or 'results' not in data:
+                    return jsonify({"summary": "No data found"}), 404
+
+                # Get the matching NID if specified
+                if nid:
+                    subcategory_data = next(
+                        (entry for entry in data['results'] if str(entry.get('nid')) == str(nid)),
+                        None
+                    )
+                    if not subcategory_data:
+                        return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
+                else:
+                    subcategory_data = data['results']
+
+                # Summarise
+                answer = summarise_content(subcategory_data, language)
+                return jsonify({'summary': answer}), 200
+
+
+            # If none of the known subcategories matched
+            return jsonify({'summary': 'Unknown subcategory.'}), 400
 
         except Exception as e:
-                    print(e)
-                    return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+            print("Error in handle_food_and_culture:", e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+
 #-----------------------------------------------------------------------------
-            
+
+    # Festivals of India        
     def handle_festivals(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-india' 
-            sub_category = parsed_url.split('/')[2].lower()
+            category = parsed_url.split('/')[2].lower()
+            sub_category = parsed_url.split('/')[3].lower()
 
-            if sub_category == 'fairs-and-pilgrimages':
-                api_url = f'https://icvtesting.nvli.in/rest-v1/festivals-of-india/fairs-and-pilgrimages?page={page if page != "" else 0}&&field_state_name_value='
-            if sub_category == 'folk-festivals':
+            if category == 'pan-indian-festivals':
+                api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/pan-indian-festivals?page=0&&field_state_name_value='
+            if category == 'fairs-and-pilgrimages':
+                if sub_category == 'fairs':
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/festivals-of-India/fairs-pilgrimages/fairs?page=0&&field_state_name_value='
+                elif sub_category == 'pilgrimages':
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/fairs-pilgrimages/pilgrimage?page=0&&field_state_name_value='
+            if category == 'folk-festivals':
                 city = parsed_url.split('/')[3].lower()
                 if city == 'honoring-deities':
                     api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Honouring-Deities?page=0&&field_state_name_value='
@@ -922,8 +947,11 @@ def summarise_page_endpoint():
                     api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Social-Traditions?page=0&&field_state_name_value='
                 if city == 'celebrating-nature':
                     api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Celebrating-Nature?page=0&&field_state_name_value='
-            if sub_category == 'tribal-festivals':
-                api_url = f'https://icvtesting.nvli.in/rest-v1/festivals-of-India/tribal-festivals/worshipping-nature?page=0&&field_state_name_value='
+            if category == 'tribal-festivals':
+                if sub_category == 'venerating-ancestors-and-deities':
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/festivals-of-India/tribal-festivals/venerating-ancestors-deities?page=0&&field_state_name_value='
+                elif sub_category == 'worshipping-nature':
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/tribal-festivals/worshipping-nature?page=0&&field_state_name_value='
            
             print(api_url)
 
@@ -945,7 +973,8 @@ def summarise_page_endpoint():
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
-            
+#-----------------------------------------------------------------------------
+    
     # States of India
     def handle_states(parsed_url, page, nid, language):
         try:
@@ -1058,14 +1087,41 @@ def summarise_page_endpoint():
     
     # healing through ages
     def handle_healing_through_the_ages(parsed_url, page, nid, language):
-        try:
-            api_url = f'https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/pan-india-traditions?page={page if page != "" else 0}&&field_state_name_value='
+        sub_category = parsed_url.split('/')[2].lower().strip()
+
+        try: 
+            if sub_category == 'pan-india-traditions':   
+                api_url = f'https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/pan-india-traditions?page={page if page != "" else 0}&&field_state_name_value='
+
+                data = extract_page_content(api_url)
+
+                if not data or 'results' not in data:
+                    return jsonify({"summary": "No data found"}), 404
+
+                sub_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+
+                # body_html = sub_data.get("body", "")
+                subcategory_data = ['''Ayurveda, one of the world's oldest systems of healing, is believed to be more than 5000 years old. It is rooted in a holistic understanding of health and wellness. The term "Ayurveda" comes from the Sanskrit words Ayur, meaning life, and Veda, meaning knowledge or science. This ancient system aims to prevent and treat various ailments by harmonizing the body with nature and elements of the universe.
+                                        The history or origin of Ayurveda is associated with numerous myths and legends. It is believed to have a divine origin, gifted to humanity by the gods to ensure health and longevity. The most prominent figure associated with Ayurveda’s creation is Lord Brahma, the creator god in Hindu mythology. According to various traditions, Brahma imparted this ancient knowledge to sages, who then passed it down to humanity through oral teachings and written texts.
+                                        Ayurveda emphasises the harmonious balance between body, mind, spirit, and social well-being. Central to Ayurvedic philosophy is the belief in the interconnectedness of all elements within the universe, which includes space, air, fire, water, and earth. The five great elements or the panchmahabhuta, form the human body and are present in different proportions. Together they form unique physical and psychological characteristics of an individual. This unique constitution is referred to as prakruti or prakriti. 
+                                        Over the centuries Ayurveda has played a crucial role in shaping medical thought and practice. The system's comprehensive approach to health, focusing on the balance of body, mind, and spirit, is documented in a body of literature that dates from approximately 400 BCE to 200 CE. The foundational theories and practices of Ayurveda can be traced to even earlier times, with its roots embedded in ancient Indian philosophical and spiritual traditions.
+                                        The historical significance of Ayurvedic literature lies not only in its early contributions to the field of medicine but also in its holistic and integrative approach to understanding the human body. As research continues to reveal the depth and relevance of Ayurvedic thought, it is important that these contributions be more widely acknowledged and incorporated into the broader discourse of medical science.
+                                        These texts are considered the pillars upon which Ayurveda rests. They provide detailed insights into its principles, diagnoses, treatments, and lifestyle practices. Together, these texts codify the vast knowledge of Ayurveda into systematic frameworks for health and healing. They represent the collective wisdom of sages and physicians in ancient India and continue to influence the practice of Ayurvedic medicine to this day. They serve not only as medical guides but also embody the philosophical, cultural, and scientific insights of the past.
+                                        The foundational texts that form the core of Ayurvedic knowledge are collectively known as the Brihat Trayi (or The Three Great Texts). These three texts are considered the pillars upon which Ayurveda rests, providing detailed insights into its principles, diagnoses, treatments, and lifestyle practices.
+                                        The Sushruta Samhita, stands as one of history’s most groundbreaking medical treatises. It is attributed to the legendary physician Sushruta, and provides an unparalleled glimpse into the advanced surgical knowledge of ancient India. It not only details complex procedures, including reconstructive surgery, and cataract removal, but also meticulously describes over hundreds of surgical instruments - many of which resemble modern scalpels, forceps, and catheters.
+                                        The extensive knowledge of Ayurveda has been preserved and passed down through generations by dedicated practitioners. According to Hindu mythology, this ancient healing system is believed to have a divine origin, with Lord Brahma as its creator. He imparted this wisdom to his disciples Daksha and the Ashvins, who then transmitted it to Lord Indra. Lord Indra entrusted this knowledge to three great sages: Dhanvantari, Bharadwaja, and Kashyapa. These revered figures shared the learnings with their disciples, who documented it in the form of shlokas (verses) and written texts.
+                                    ''']
+                
+
+            if sub_category == 'unconventional-traditions':
+                api_url = f'https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/unconventional-traditions?page=0&&field_state_name_value='
 
             data = extract_page_content(api_url)
             if not data or 'results' not in data:
                 return jsonify({"summary": "No data found"}), 404
 
             subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+            
 
             if subcategory_data:
                 answer = summarise_content(subcategory_data, language)               
@@ -1079,22 +1135,56 @@ def summarise_page_endpoint():
     # classical dances
     def handle_classical_dances(parsed_url, page, nid, language):
         try:
-            api_url = f'https://icvtesting.nvli.in/rest-v1/classical-dances-details?page={page if page != "" else 0}&&field_state_name_value='
-            print('api_url',api_url)
+            api_url = f'https://icvtesting.nvli.in/rest-v1/classical-dances-details?page={page if page != "" else 0}&field_state_name_value='
+            print('api_url', api_url)
             data = extract_page_content(api_url)
             if not data or 'results' not in data:
                 return jsonify({"summary": "No data found"}), 404
 
-            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+            # Find the matching item by nid
+            subcategory_data = next(
+                (category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)),
+                None
+            )
 
-            if subcategory_data:
-                answer = summarise_content(subcategory_data, language)               
-                return jsonify({'summary': answer}), 200
-            else:
+            if not subcategory_data:
                 return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+
+            body_html = subcategory_data.get('body', '')
+            main_text = clean_html_truncate(body_html, max_words=250)
+
+            other_paragraphs = []
+            field_popup = subcategory_data.get('field_popup', '')
+            if field_popup:
+                try:
+                    # Wrap the concatenated JSON objects into an array to make valid JSON
+                    json_text = f"[{field_popup.strip()}]"
+                    popup_json_array = json.loads(json_text)
+
+                    # Process each object in the array
+                    for popup_json in popup_json_array:
+                        results = popup_json.get("search_results", [])
+                        for res in results:
+                            para_html = res.get("field_paragraph", "")
+                            if para_html:
+                                cleaned_para = clean_html_truncate(para_html, max_words=100)
+                                other_paragraphs.append(cleaned_para)
+                except Exception as e:
+                    print("Error parsing field_popup JSON:", e)
+
+            # Combine main text and other paragraphs
+            combined_text = main_text
+            if other_paragraphs:
+                combined_text += "\n\n" + "\n\n".join(other_paragraphs)
+
+            text_data = {"body": combined_text}
+            answer = summarise_content(text_data, language)
+            return jsonify({'summary': answer}), 200
+
         except Exception as e:
-            print(e)
+            print("Error in classical dances handler:", e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+
 #-----------------------------------------------------------------------------
 
     def handle_historical_cities(parsed_url, page, nid, language):
@@ -1112,6 +1202,59 @@ def summarise_page_endpoint():
                 return jsonify({'summary': answer}), 200
             else:
                 return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+        except Exception as e:
+            print(e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+#-----------------------------------------------------------------------------
+
+    def handle_folktales(parsed_url, page, nid, language):
+        try:
+            sub_category = parsed_url.split('/')[2].lower().strip()
+            if sub_category == 'fairytales':
+                api_url = 'https://icvtesting.nvli.in/rest-v1/fairytales-landing-main?page=0&&field_state_name_value='
+
+            data = extract_page_content(api_url)
+            if not data or 'results' not in data:
+                return jsonify({"summary": "No data found"}), 404
+
+            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+
+        except Exception as e:
+            print(e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+#-----------------------------------------------------------------------------
+
+    def handle_lengendary_figures(parsed_url, page, nid, language):
+        try:
+            sub_category = parsed_url.split('/')[2].lower().strip()
+
+            if sub_category == 'kings-and-queens':
+                api_url = 'https://icvtesting.nvli.in/rest-v1/legendary-figure/kings-queens?page=0&&field_state_name_value='
+            
+            if sub_category == 'sages-philosophers-and-thinkers':
+                api_url = 'https://icvtesting.nvli.in/rest-v1/legendary-figure/social-reformers-revolutionaries?page=0&&field_state_name_value='
+            
+            if sub_category == 'social-reformers-and-revolutionaries':
+                api_url = 'https://icvtesting.nvli.in/rest-v1/legendary-figure/sages-philosophers-thinkers?page=0&&field_state_name_value='
+
+            data = extract_page_content(api_url)
+            if not data or 'results' not in data:
+                return jsonify({"summary": "No data found"}), 404
+
+            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
@@ -1177,13 +1320,20 @@ def summarise_page_endpoint():
             return handle_snippets(parsed_url, page, nid, language=lang)
         elif category == 'stories':
             return handle_stories(parsed_url, page, nid, language=lang)
+        elif category == 'folktales-of-india':
+            return handle_folktales(parsed_url, page, nid, language=lang)
+        elif category == 'legendary-figures-of-india':
+            return handle_lengendary_figures(parsed_url, page, nid, language=lang)
     except Exception as e:
             print(e)
 
-            
 #------------------------------------------------------------------------------------
 @app.get('/clear_memory')
 def clear_memory():
     global thread_id
     thread_id += 1
     return jsonify({"message": "Memory cleared successfully"}), 200
+
+if __name__ == '__main__':
+    app.run(debug = True)
+
