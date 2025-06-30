@@ -1302,7 +1302,7 @@ def summarise_page_endpoint():
             return handle_food_and_culture(parsed_url, page, nid, language=lang)
         elif category == 'festivals-of-india':
             return handle_festivals(parsed_url, page, nid, language=lang)
-        elif category == 'states':
+        elif category == 'states-of-india':
             return handle_states(parsed_url, page, nid, language=lang)
         elif category == 'iconic-battles-of-india':
             return handle_iconic_battles(parsed_url, page, nid, language=lang)
