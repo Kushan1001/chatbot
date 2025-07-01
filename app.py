@@ -557,7 +557,7 @@ def summarise_page_endpoint():
             if nid:
                 subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
             else:
-                subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('title').lower()) == subcategory_type.replace('-', ' ').lower()), None)
+                subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('title').lower().strip()) == subcategory_type.replace('-', ' ').lower()), None)
             
             if subcategory_data:
                 answer = summarise_content(subcategory_data, language)               
