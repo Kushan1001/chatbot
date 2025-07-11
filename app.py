@@ -1104,8 +1104,8 @@ def summarise_page_endpoint():
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
 #-----------------------------------------------------------------------------
-    
-    # healing through ages
+
+# healing through ages
     def handle_healing_through_the_ages(parsed_url, page, nid, language):
         sub_category = parsed_url.split('/')[2].lower().strip()
 
@@ -1119,19 +1119,21 @@ def summarise_page_endpoint():
                     return jsonify({"summary": "No data found"}), 404
 
                 sub_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+                history = sub_data['body']
+                philosophy =  sub_data['field_philosophy']
+                practitioners =  sub_data['field_practitioners']
+                literature =  sub_data['field_literature']
+                surgical_equipment =  sub_data['field_surgical_equipment']
 
-                # body_html = sub_data.get("body", "")
-                subcategory_data = ['''Ayurveda, one of the world's oldest systems of healing, is believed to be more than 5000 years old. It is rooted in a holistic understanding of health and wellness. The term "Ayurveda" comes from the Sanskrit words Ayur, meaning life, and Veda, meaning knowledge or science. This ancient system aims to prevent and treat various ailments by harmonizing the body with nature and elements of the universe.
-                                        The history or origin of Ayurveda is associated with numerous myths and legends. It is believed to have a divine origin, gifted to humanity by the gods to ensure health and longevity. The most prominent figure associated with Ayurveda’s creation is Lord Brahma, the creator god in Hindu mythology. According to various traditions, Brahma imparted this ancient knowledge to sages, who then passed it down to humanity through oral teachings and written texts.
-                                        Ayurveda emphasises the harmonious balance between body, mind, spirit, and social well-being. Central to Ayurvedic philosophy is the belief in the interconnectedness of all elements within the universe, which includes space, air, fire, water, and earth. The five great elements or the panchmahabhuta, form the human body and are present in different proportions. Together they form unique physical and psychological characteristics of an individual. This unique constitution is referred to as prakruti or prakriti. 
-                                        Over the centuries Ayurveda has played a crucial role in shaping medical thought and practice. The system's comprehensive approach to health, focusing on the balance of body, mind, and spirit, is documented in a body of literature that dates from approximately 400 BCE to 200 CE. The foundational theories and practices of Ayurveda can be traced to even earlier times, with its roots embedded in ancient Indian philosophical and spiritual traditions.
-                                        The historical significance of Ayurvedic literature lies not only in its early contributions to the field of medicine but also in its holistic and integrative approach to understanding the human body. As research continues to reveal the depth and relevance of Ayurvedic thought, it is important that these contributions be more widely acknowledged and incorporated into the broader discourse of medical science.
-                                        These texts are considered the pillars upon which Ayurveda rests. They provide detailed insights into its principles, diagnoses, treatments, and lifestyle practices. Together, these texts codify the vast knowledge of Ayurveda into systematic frameworks for health and healing. They represent the collective wisdom of sages and physicians in ancient India and continue to influence the practice of Ayurvedic medicine to this day. They serve not only as medical guides but also embody the philosophical, cultural, and scientific insights of the past.
-                                        The foundational texts that form the core of Ayurvedic knowledge are collectively known as the Brihat Trayi (or The Three Great Texts). These three texts are considered the pillars upon which Ayurveda rests, providing detailed insights into its principles, diagnoses, treatments, and lifestyle practices.
-                                        The Sushruta Samhita, stands as one of history’s most groundbreaking medical treatises. It is attributed to the legendary physician Sushruta, and provides an unparalleled glimpse into the advanced surgical knowledge of ancient India. It not only details complex procedures, including reconstructive surgery, and cataract removal, but also meticulously describes over hundreds of surgical instruments - many of which resemble modern scalpels, forceps, and catheters.
-                                        The extensive knowledge of Ayurveda has been preserved and passed down through generations by dedicated practitioners. According to Hindu mythology, this ancient healing system is believed to have a divine origin, with Lord Brahma as its creator. He imparted this wisdom to his disciples Daksha and the Ashvins, who then transmitted it to Lord Indra. Lord Indra entrusted this knowledge to three great sages: Dhanvantari, Bharadwaja, and Kashyapa. These revered figures shared the learnings with their disciples, who documented it in the form of shlokas (verses) and written texts.
-                                    ''']
-                
+                subcategory_data = f'''history: {history}.\n Philosophy: {philosophy}.\n Practitioners: {practitioners}
+                                        Literature: {literature}.\n Surgical Equipment: {surgical_equipment}   
+                                    '''
+
+                if subcategory_data:
+                    answer = summarise_content(subcategory_data, language)               
+                    return jsonify({'summary': answer}), 200
+                else:
+                    return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
 
             if sub_category == 'unconventional-traditions':
                 api_url = f'https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/unconventional-traditions?page=0&&field_state_name_value='
