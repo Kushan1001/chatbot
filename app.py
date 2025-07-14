@@ -955,19 +955,24 @@ def summarise_page_endpoint():
             if category == 'pan-indian-festivals':
                 api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/pan-indian-festivals?page=0&&field_state_name_value='
             if category == 'fairs-and-pilgrimages':
+                if sub_category not in ['fairs', 'pilgrimages']:
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/festivals-of-India/fairs-pilgrimages/fairs?page=0&&field_state_name_value='
                 if sub_category == 'fairs':
                     api_url = f'https://icvtesting.nvli.in/rest-v1/festivals-of-India/fairs-pilgrimages/fairs?page=0&&field_state_name_value='
                 elif sub_category == 'pilgrimages':
                     api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/fairs-pilgrimages/pilgrimage?page=0&&field_state_name_value='
             if category == 'folk-festivals':
-                city = parsed_url.split('/')[3].lower()
-                if city == 'honoring-deities':
+                if sub_category not in ['honoring-deities','social-traditions', 'celebrating-nature']:
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Celebrating-Nature?page=0&&field_state_name_value='
+                if sub_category == 'honoring-deities':
                     api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Honouring-Deities?page=0&&field_state_name_value='
-                if city == 'social-traditions':
+                if sub_category == 'social-traditions':
                     api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Social-Traditions?page=0&&field_state_name_value='
-                if city == 'celebrating-nature':
+                if sub_category == 'celebrating-nature':
                     api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Celebrating-Nature?page=0&&field_state_name_value='
             if category == 'tribal-festivals':
+                if sub_category not in ['venerating-ancestors-and-deities', 'worshipping-nature']:
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/tribal-festivals/worshipping-nature?page=0&&field_state_name_value='
                 if sub_category == 'venerating-ancestors-and-deities':
                     api_url = f'https://icvtesting.nvli.in/rest-v1/festivals-of-India/tribal-festivals/venerating-ancestors-deities?page=0&&field_state_name_value='
                 elif sub_category == 'worshipping-nature':
@@ -1447,4 +1452,5 @@ def clear_memory():
     global thread_id
     thread_id += 1
     return jsonify({"message": "Memory cleared successfully"}), 200
+
 
