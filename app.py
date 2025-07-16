@@ -58,6 +58,7 @@ def remove_src_attributes(html_text):
     cleaned_html = re.sub(r'\s*src="[^"]*"', '', html_text)
     return cleaned_html
 
+
 def clean_html_truncate(html_text, max_words=250):
     soup = BeautifulSoup(html_text or "", "html.parser")
     plain_text = soup.get_text(separator=" ")
@@ -66,29 +67,7 @@ def clean_html_truncate(html_text, max_words=250):
         return " ".join(words[:max_words])
     return plain_text
 
-def answer_query(state:State):
-    if state['intent'] == "Greeting":
-        print("Debug: Greeting detected, skipping SQL query.")
-        return {'context': ''}  
-    
-    elif state['intent'] == "Query":
-        query = state['user_query'][-1]
 
-        similar_title_ids = fetch_similar_titles(vector_store=vector_store, query=query.content) or []
-
-        if similar_title_ids:
-            sql_query_result = generate_sql_query(ids=similar_title_ids)
-            context = sql_query_result.to_string() if isinstance(sql_query_result, pd.DataFrame) else sql_query_result
-        else:
-            print("Debug: No similar titles found.")
-            context = ''
-
-        return {'context': context}
-    
-    else:
-        print("Debug: Unknown intent, returning empty context.")
-        return {'context': ''}  
-    
 def clean_and_truncate_html(html_text, word_limit=100):
     clean_text = re.sub('<.*?>', '', html_text)
     clean_text = clean_text.replace("&nbsp;", " ").strip()
@@ -96,26 +75,6 @@ def clean_and_truncate_html(html_text, word_limit=100):
     words = clean_text.split()
     truncated_words = words[:word_limit]
     return ' '.join(truncated_words)
-
-
-def identify_intent(state:State):
-    prompt = f"""
-    You are an intent classification model. Classify the following query into one of the following intents:
-    When a user wishes to explore a category the intent should be query.
-
-    1. Greeting
-    2. Query
-    3. Unknown
-    
-    Query: "{state['user_query']}" 
-    
-    Respond with only the intent name.
-    """
-
-    response = llm.invoke(prompt)
-    intent = response.content.strip()
-    
-    return {'intent': intent}
 
 
 def translate_to_hindi(text: str) -> str:
@@ -143,120 +102,8 @@ def translate_to_hindi(text: str) -> str:
     except Exception as e:
         print("Translation error:", e)
         return text 
-
-
-def greeting_answer(state:State):
-
-    language = state['language']
-
-    qa_prompt = PromptTemplate.from_template(
-      """ Your name is Bharti. You are an AI assistant for the Indian Culture Portal that deal with Indian Culture and History.
-           When a greets you you should reply with a formal greeting.
-
-           Talk about your capabilities such as search through books, Q/A through the content.
-           Do not give any content here
-           Add emojis wherever necessary. But not much of it.
-           keep the answer short and sweet
-        """
-    )
-
-    if state['intent'] == "Greeting":
-        chain = qa_prompt | llm
-        response = chain.invoke({'question': state['user_query']})
-        content = response.content
-        
-        if language == 'hi':
-            content = translate_to_hindi(content)
-
-        return {'response': content}
-
-
-def query_answer(state: State):
-    language = state['language']
     
-    qa_prompt = PromptTemplate.from_template(
-        """You are an AI assistant for the Indian Culture Portal.
-        Answer ONLY using the context provided. Do NOT guess or fabricate anything.
-        Group your answer category-wise.
-        Respond ONLY with a valid JSON array, strictly matching this structure:
-        [
-          {{
-            "category": "Category Name",
-            "description": "3-4 lines summary about this category",
-            "resources": [
-              {{
-                "title": "Resource Title",
-                "url": "category url or 'NA'"
-              }}
-            ]
-          }}
-        ]
 
-        DO NOT include markdown, extra quotes, or any text outside the JSON array.
-
-        context: {context}
-        User question: {question}
-        """
-    )
-
-    if state['intent'] == "Query":
-        chain = qa_prompt | llm
-        response = chain.invoke({
-            'context': state['context'],
-            'question': state['user_query']
-        })
-
-        try:
-            parsed_json = json.loads(response.content)
-            if not isinstance(parsed_json, list):
-                raise ValueError("Expected a list of category dictionaries")
-        except Exception as e:
-            print(f"Initial Parsing Error: {e}")
-
-            fix_json_prompt = PromptTemplate.from_template(
-                """You are a JSON repair tool.
-                Your task is to correct invalid JSON and return only the corrected JSON list.
-                Only fix formatting issues. Just return the correct json nothing else. Do not alter the original content. 
-
-                Input:
-                {bad_json}
-
-                Output:
-                """
-            )
-
-            fix_chain = fix_json_prompt | llm
-            recovery_response = fix_chain.invoke({'bad_json': response.content})
-
-            try:
-                parsed_json = json.loads(recovery_response.content)
-                if not isinstance(parsed_json, list):
-                    raise ValueError("Still not a list")
-            except Exception as e2:
-                print(f"Recovery Parsing Error: {e2}")
-                parsed_json = [{
-                    "category": "Invalid" if language != "Hindi" else "अमान्य",
-                    "description": "Proper response not returned for the query. Try Again!" if language != "Hindi"
-                                  else "प्रश्न के लिए उचित उत्तर प्राप्त नहीं हुआ। कृपया पुनः प्रयास करें!",
-                    "resources": [],
-                    "category_url": "NA"
-                }]
-
-        if language == "hi":
-            for item in parsed_json:
-                item["category"] = translate_to_hindi(item.get("category", ""))
-                item["description"] = translate_to_hindi(item.get("description", ""))
-
-        json_str = json.dumps(parsed_json, ensure_ascii=False)
-
-        return {
-            'response': [{
-                'role': 'assistant',
-                'content': json_str
-            }]
-        }
-
-    
 def truncate_text(text, max_tokens=850):
     words = text.split()
     return ' '.join(words[:max_tokens])
@@ -271,12 +118,12 @@ def extract_page_content(url):
         print(f"Error fetching page content: {e}")
         return None
 
-
+#------------------------------------------------------------------------------------------------
 def summarise_content(data, language):
     raw_text = json.dumps(data, indent=2)
     truncated_text = truncate_text(raw_text)
 
-    print(language)
+    print('Language Detected:',  language)
 
     qa_prompt = PromptTemplate.from_template(
         """You are an AI assistant for the Indian Culture Portal, specializing in Indian culture, history, and governance.
@@ -314,21 +161,315 @@ def summarise_content(data, language):
         return "Failed to generate summary"
     
 
+# Intent Classification
+#------------------------------------------------------------------------------------------------
+def identify_intent(state: State):
+    latest_question = (
+        state["user_query"][-1].content
+        if state["user_query"]
+        else ""
+    )
+
+    # Build the prompt template
+    classification_prompt = PromptTemplate.from_template(
+        """
+            You are an intent classification model for the Indian Culture Portal (IPC).
+            Classify the user query into one of these intents:
+
+            1. Greeting:
+            - The user greets you (e.g., "Hello", "Hi").
+            2. General:
+            - The user asks about your capabilities, who you are, or general questions not requiring data lookup.
+            - Includes administrative questions about the portal itself (e.g., "Who developed this portal?", "What can you do?").
+            3. Specialised:
+            - The user asks for specific information about Indian culture, history, books, or content that requires searching databases or knowledge content.
+            - Example: "Tell me about Mughal architecture."
+            4. Unknown:
+            - The query is unclear or does not fit any category.
+
+            **Examples:**
+
+            - "Hi there" -> Greeting
+            - "What can you do?" -> General
+            - "Explain Vedic literature." -> Specialised
+            - "asdlkj" -> Unknown
+
+            User Query:
+            {latest_question}
+
+            Respond with only the intent name (Greeting, General, Specialised, Unknown). No explanation.
+            """
+    )
+
+    chain = classification_prompt | llm
+
+    response = chain.invoke({"latest_question": latest_question})
+    intent = response.content.strip()
+
+    print("Intent Classification Response:", intent)
+    return {"intent": intent}
+
+
+
+
+# handles greeting response
+#------------------------------------------------------------------------------------------------
+def greeting_answer(state:State):
+
+    language = state['language']
+
+    qa_prompt = PromptTemplate.from_template(
+      """ Your name is Bharti. You are an AI assistant for the Indian Culture Portal that deal with Indian Culture and History.
+           When a greets you you should reply with a formal greeting.
+
+           Talk about your capabilities such as search through books, Q/A through the content.
+           Do not give any content here
+           Add emojis wherever necessary. But not much of it.
+           keep the answer short and sweet
+        """
+    )
+
+    if state['intent'] == "Greeting":
+        chain = qa_prompt | llm
+        response = chain.invoke({'question': state['user_query']})
+        content = response.content
+        
+        if language == 'hi':
+            content = translate_to_hindi(content)
+
+        return {'response': content}
+    
+
+# handles general query response
+#------------------------------------------------------------------------------------------------
+def general_query_answer(state: State):
+    language = state['language']
+
+    knowledge_context = """
+        Recognizing the ongoing need to position itself for the digital future, 
+        Indian Culture is an initiative by the Ministry of Culture. A platform that 
+        hosts data of cultural relevance from various repositories and institutions all 
+        over India.
+        """
+
+    qa_prompt = PromptTemplate.from_template(
+        """
+            Your name is Bharti. You are an AI assistant for the Indian Culture Portal that deals with Indian Culture and History.
+
+            Instructions:
+            - The following is the conversation history so far.
+            - Use it only for additional context if needed.
+            - Focus on answering ONLY the latest user question.
+            - Do not repeat prior answers unless explicitly asked.
+            - Do not every start you answer with a greeting.
+
+            - Keep your answer under 70-80 words.
+
+            Context:
+            {knowledge_context}
+
+            Conversation History:
+            {conversation_history}
+
+            Latest User Question:
+            {latest_question}
+
+            Response:
+            """
+                )
+
+    conversation_history = ""
+    for msg in state['user_query']:
+        role = (
+            "User" if msg.type == "human" else
+            "Assistant" if msg.type == "ai" else
+            "System"
+        )
+        conversation_history += f"{role}: {msg.content}\n"
+
+    latest_question = state['user_query'][-1].content if state['user_query'] else ""
+
+    chain = qa_prompt | llm
+    response = chain.invoke({
+        'conversation_history': conversation_history.strip(),
+        'latest_question': latest_question,
+        'knowledge_context': knowledge_context
+    })
+
+    content = response.content
+
+    if language == 'hi':
+        content = translate_to_hindi(content)
+
+    return {'response': content}
+
+
+# handles specilaised query responses
+#------------------------------------------------------------------------------------------------
+def specialised_query_answer(state: State):
+    language = state['language']
+
+    qa_prompt = PromptTemplate.from_template(
+        """
+            Your name is Bharti. You are an AI assistant for the Indian Culture Portal that deals with Indian Culture and History.
+
+            Instructions:
+            - Answer ONLY using the context provided.
+            - Do NOT guess or fabricate anything.
+            - Use the conversation history only if relevant.
+            - Focus on answering ONLY the latest user question.
+            - Group your answer category-wise.
+            - Respond ONLY with a valid JSON array, strictly matching this structure:
+
+            [
+            {{
+                "category": "Category Name",
+                "description": "3-4 lines summary about this category",
+                "resources": [
+                {{
+                    "title": "Resource Title",
+                    "url": "category url or 'NA'"
+                }}
+                ]
+            }}
+            ]
+
+            DO NOT include markdown, extra quotes, or any text outside the JSON array.
+
+            Context:
+            {context}
+
+            Conversation History:
+            {conversation_history}
+
+            Latest User Question:
+            {latest_question}
+        """
+    )
+
+    if state['intent'] == "Specialised":
+        conversation_history = ""
+        for msg in state['user_query']:
+            role = (
+                "User" if msg.type == "human" else
+                "Assistant" if msg.type == "ai" else
+                "System"
+            )
+            conversation_history += f"{role}: {msg.content}\n"
+
+        latest_question = (
+            state['user_query'][-1].content
+            if state['user_query']
+            else ""
+        )
+
+        chain = qa_prompt | llm
+        response = chain.invoke({
+            'context': state['context'],
+            'conversation_history': conversation_history.strip(),
+            'latest_question': latest_question
+        })
+
+        try:
+            parsed_json = json.loads(response.content)
+            if not isinstance(parsed_json, list):
+                raise ValueError("Expected a list of category dictionaries")
+        except Exception as e:
+            print(f"Initial Parsing Error: {e}")
+
+            fix_json_prompt = PromptTemplate.from_template(
+                """
+                    You are a JSON repair tool.
+                    Your task is to correct invalid JSON and return only the corrected JSON list.
+                    Only fix formatting issues. Just return the correct JSON—do not alter the original content.
+
+                    Input:
+                    {bad_json}
+
+                    Output:
+                """
+            )
+
+            fix_chain = fix_json_prompt | llm
+            recovery_response = fix_chain.invoke({'bad_json': response.content})
+
+            try:
+                parsed_json = json.loads(recovery_response.content)
+                if not isinstance(parsed_json, list):
+                    raise ValueError("Still not a list")
+            except Exception as e2:
+                print(f"Recovery Parsing Error: {e2}")
+                parsed_json = [{
+                    "category": "Invalid" if language != "Hindi" else "अमान्य",
+                    "description": (
+                        "Proper response not returned for the query. Try Again!"
+                        if language != "Hindi"
+                        else "प्रश्न के लिए उचित उत्तर प्राप्त नहीं हुआ। कृपया पुनः प्रयास करें!"
+                    ),
+                    "resources": []
+                }]
+
+        if language == "hi":
+            for item in parsed_json:
+                item["category"] = translate_to_hindi(item.get("category", ""))
+                item["description"] = translate_to_hindi(item.get("description", ""))
+
+        json_str = json.dumps(parsed_json, ensure_ascii=False)
+
+        return {
+            'response': [{
+                'role': 'assistant',
+                'content': json_str
+            }]
+        }
+
+
+# Answer Queries
+#------------------------------------------------------------------------------------------------
+def answer_query(state:State):
+    if state['intent'] == "Greeting":
+        print("Debug: Greeting detected, skipping SQL query.")
+        return {'context': ''}  
+    
+    elif state['intent'] == "Specialised":
+        query = state['user_query'][-1]
+
+        similar_title_ids = fetch_similar_titles(vector_store=vector_store, query=query.content) or []
+
+        if similar_title_ids:
+            sql_query_result = generate_sql_query(ids=similar_title_ids)
+            context = sql_query_result.to_string() if isinstance(sql_query_result, pd.DataFrame) else sql_query_result
+        else:
+            print("Debug: No similar titles found.")
+            context = ''
+
+        return {'context': context}
+    
+    else:
+        print("Debug: Unknown intent, returning empty context.")
+        return {'context': ''}  
+
+
+# Langgraph
+#------------------------------------------------------------------------------------------------
 graph_builder.add_node("question_type", identify_intent)
 graph_builder.add_node("context_memory", answer_query)
 graph_builder.add_node("greeting_response", greeting_answer)
-graph_builder.add_node("query_response", query_answer)
+graph_builder.add_node("general_query_response", general_query_answer)
+graph_builder.add_node("specialised_query_response", specialised_query_answer)
 
 
 graph_builder.add_edge(START,"question_type")
 graph_builder.add_edge("question_type", "context_memory")
 graph_builder.add_edge("context_memory", 'greeting_response')
-graph_builder.add_edge("context_memory", 'query_response')
-graph_builder.add_edge("query_response", END)
+graph_builder.add_edge("context_memory", "general_query_response")
+graph_builder.add_edge("context_memory", 'specialised_query_response')
 graph_builder.add_edge("greeting_response", END)
-
+graph_builder.add_edge("general_query_response", END)
+graph_builder.add_edge("specialised_query_response", END)
 
 graph = graph_builder.compile(checkpointer=memory)
+
 
 
 @app.post('/chat')
@@ -342,39 +483,62 @@ def query():
 
     config = {"configurable": {"thread_id": thread_id, "language": language}}
     events = graph.stream(
-        {'user_query': [{'role': 'user', 'content': user_query}],
-         'language': language},
-        config = config
+        {
+            'user_query': [{'role': 'user', 'content': user_query}],
+            'language': language
+        },
+        config=config
     )
     
     for event in events:
         events_list.append(event)
 
-    print(events_list[0]['question_type']['intent'])
 
-    if events_list != []:
-        if events_list[0]['question_type']['intent'] == 'Query':
-            answer = events_list[2].get('query_response', '') or events_list[3].get('greeting_response', '')
-            answer = events_list[3].get('query_response', '') or events_list[2].get('greeting_response', '')
-            # print({'response': answer['response']})
+    if not events_list:
+        return jsonify({'answer': 'Cannot generate response. Try Again!'}), 404
 
+    intent = events_list[0]['question_type']['intent']
+
+    # Convenience mapping
+    event_map = {}
+    for ev in events_list:
+        event_map.update(ev)
+
+    if intent == 'Specialised':
+        # Specialized query returns JSON
+        node = event_map.get('specialised_query_response')
+        if node:
+            json_data = json.loads(node['response'][0]['content'])
+            # Save chat history
             ist = timezone(timedelta(hours=5, minutes=30))
-
-            chat_history_obj = ChatHistory(thread_id = thread_id, timestamp = datetime.now(ist).replace(microsecond = 0) , user_query = user_query)
+            chat_history_obj = ChatHistory(
+                thread_id=thread_id,
+                timestamp=datetime.now(ist).replace(microsecond=0),
+                user_query=user_query
+            )
             session.add(chat_history_obj)
             session.commit()
             print('Entry committed to database')
-
-            return jsonify({'answer': json.loads(answer['response'][0]['content'])}), 200
-        
-        elif events_list[0]['question_type']['intent'] == 'Greeting':
-            answer = events_list[3].get('greeting_response', '')
-            return jsonify({'answer': answer['response']}), 200
-        
+            return jsonify({'answer': json_data}), 200
         else:
-            return jsonify({'answer': 'Cannot understand the intent. Please type a proper query'}), 404
+            return jsonify({'answer': 'No specialized response generated.'}), 500
+
+    elif intent == 'General':
+        node = event_map.get('general_query_response')
+        if node:
+            return jsonify({'answer': node['response']}), 200
+        else:
+            return jsonify({'answer': 'No general response generated.'}), 500
+
+    elif intent == 'Greeting':
+        node = event_map.get('greeting_response')
+        if node:
+            return jsonify({'answer': node['response']}), 200
+        else:
+            return jsonify({'answer': 'No greeting response generated.'}), 500
+
     else:
-        return jsonify({'answer': 'Cannot generate response. Try Again!'}), 404
+        return jsonify({'answer': 'Cannot understand the intent. Please type a proper query.'}), 404
 
 
 @app.post('/summarise_page')
@@ -1453,4 +1617,6 @@ def clear_memory():
     thread_id += 1
     return jsonify({"message": "Memory cleared successfully"}), 200
 
+if __name__ == '__main__':
+    app.run(debug = True)
 
