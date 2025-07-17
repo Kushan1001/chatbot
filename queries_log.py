@@ -16,3 +16,5 @@ class ChatHistory(Base):
 # Use PostgreSQL if available, fallback to local SQLite
 db_url = os.environ.get("DATABASE_URL", "sqlite:///chat_history.db")
 engine = create_engine(db_url, echo=False)
+
+Base.metadata.create_all(engine)
