@@ -12,4 +12,4 @@ flask_cors
 langgraph
 gunicorn
 bs4
-
+psycopg2-binary
