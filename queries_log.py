@@ -1,5 +1,6 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Text, DateTime, create_engine
+import os
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime
+from sqlalchemy.orm import declarative_base
 from datetime import datetime, timezone
 
 Base = declarative_base()
@@ -12,8 +13,6 @@ class ChatHistory(Base):
     timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     user_query = Column(Text)
 
-
-engine = create_engine("sqlite:///chat_history.db")
-Base.metadata.create_all(engine)
-print('Database created successfully !')
-
+# Use PostgreSQL if available, fallback to local SQLite
+db_url = os.environ.get("DATABASE_URL", "sqlite:///chat_history.db")
+engine = create_engine(db_url, echo=False)
