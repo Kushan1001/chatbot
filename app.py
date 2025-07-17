@@ -20,8 +20,6 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import sessionmaker
 import html
 
-
-
 app = Flask(__name__)
 
 CORS(app, origins= "*" )
@@ -75,6 +73,14 @@ def clean_and_truncate_html(html_text, word_limit=100):
     words = clean_text.split()
     truncated_words = words[:word_limit]
     return ' '.join(truncated_words)
+
+def truncate_context(text_or_list, max_words: int = 700) -> str:
+    if isinstance(text_or_list, list):
+        text = " ".join(str(item) for item in text_or_list)
+    else:
+        text = str(text_or_list)
+    words = text.split()
+    return ' '.join(words[:max_words])
 
 
 def translate_to_hindi(text: str) -> str:
@@ -208,8 +214,6 @@ def identify_intent(state: State):
 
     print("Intent Classification Response:", intent)
     return {"intent": intent}
-
-
 
 
 # handles greeting response
@@ -349,13 +353,14 @@ def specialised_query_answer(state: State):
 
     if state['intent'] == "Specialised":
         conversation_history = ""
-        for msg in state['user_query']:
+        if len(state['user_query']) > 1:
+            prev_msg = state['user_query'][-2]  # second last message
             role = (
-                "User" if msg.type == "human" else
-                "Assistant" if msg.type == "ai" else
+                "User" if prev_msg.type == "human" else
+                "Assistant" if prev_msg.type == "ai" else
                 "System"
             )
-            conversation_history += f"{role}: {msg.content}\n"
+            conversation_history = f"{role}: {prev_msg.content}\n"
 
         latest_question = (
             state['user_query'][-1].content
@@ -365,7 +370,7 @@ def specialised_query_answer(state: State):
 
         chain = qa_prompt | llm
         response = chain.invoke({
-            'context': state['context'],
+            'context': truncate_context(state['context'], max_words=200),
             'conversation_history': conversation_history.strip(),
             'latest_question': latest_question
         })
@@ -474,6 +479,8 @@ graph = graph_builder.compile(checkpointer=memory)
 
 @app.post('/chat')
 def query():
+    global thread_id
+
     events_list = []
     answer = ''
     
@@ -519,6 +526,8 @@ def query():
             session.add(chat_history_obj)
             session.commit()
             print('Entry committed to database')
+            thread_id += 1
+
             return jsonify({'answer': json_data}), 200
         else:
             return jsonify({'answer': 'No specialized response generated.'}), 500
@@ -536,7 +545,7 @@ def query():
             return jsonify({'answer': node['response']}), 200
         else:
             return jsonify({'answer': 'No greeting response generated.'}), 500
-
+        
     else:
         return jsonify({'answer': 'Cannot understand the intent. Please type a proper query.'}), 404
 
@@ -600,7 +609,6 @@ def summarise_page_endpoint():
                 return jsonify({"summary": "No data found"}), 404
 
             subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
-
 
             if subcategory_data:
                 answer = summarise_content(subcategory_data, language)               
@@ -1617,5 +1625,6 @@ def clear_memory():
     thread_id += 1
     return jsonify({"message": "Memory cleared successfully"}), 200
 
-
+if __name__ == '__main__':
+    app.run(debug = True)
 
