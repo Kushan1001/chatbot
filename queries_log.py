@@ -14,7 +14,7 @@ class ChatHistory(Base):
     user_query = Column(Text)
 
 # Use PostgreSQL if available, fallback to local SQLite
-db_url  = 'postgresql://kushan:98o4IThpeKEkpWl2zmLz8SvOIM6wV440@dpg-d1sd68fdiees73ffpp6g-a/chat_history_4gwf?sslmode=require'
+db_url = 'postgresql+psycopg2://kushan:98o4IThpeKEkpWl2zmLz8SvOIM6wV440@dpg-d1sd68fdiees73ffpp6g-a/chat_history_4gwf?sslmode=require'
 engine = create_engine(db_url, echo=False)
 
 Base.metadata.create_all(engine)
