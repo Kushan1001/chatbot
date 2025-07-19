@@ -42,7 +42,6 @@ class State(TypedDict):
 
 graph_builder=StateGraph(State)
 
-
 def clean_html(html_text):
     decoded_html = html.unescape(html_text)
     soup = BeautifulSoup(decoded_html, 'html.parser')
@@ -186,7 +185,7 @@ def identify_intent(state: State):
             - The user greets you (e.g., "Hello", "Hi").
             2. General:
             - The user asks about your capabilities, who you are, or general questions not requiring data lookup.
-            - Includes administrative questions about the portal itself (e.g., "Who developed this portal?", "What can you do?").
+            - Includes administrative questions about the portal itself and categories description.(e.g., "Who developed this portal?", "What can you do?", "What is NVLI").
             3. Specialised:
             - The user asks for specific information about Indian culture, history, books, or content that requires searching databases or knowledge content.
             - Example: "Tell me about Mughal architecture."
@@ -226,10 +225,11 @@ def greeting_answer(state:State):
       """ Your name is Bharti. You are an AI assistant for the Indian Culture Portal that deal with Indian Culture and History.
            When a greets you you should reply with a formal greeting.
 
-           Talk about your capabilities such as search through books, Q/A through the content.
+           Talk about your capabilities:  search through books, Q/A through the content, summarise the information.
            Do not give any content here
            Add emojis wherever necessary. But not much of it.
            keep the answer short and sweet
+           List capabilities in points but not give description of it.
         """
     )
 
@@ -254,6 +254,130 @@ def general_query_answer(state: State):
         Indian Culture is an initiative by the Ministry of Culture. A platform that 
         hosts data of cultural relevance from various repositories and institutions all 
         over India.
+        The Indian Culture Portal is a part of the National Virtual Library of India project, 
+        funded by the Ministry of Culture, Government of India. The portal has been created and 
+        developed by the Indian Institute of Technology (IIT), Bombay. 
+        The content is available both in English and Hindi
+
+        
+        Categories available on the website:
+            1. Original Catgegories (Prepared with original research by reserachers done here):
+                subcategory 1: Cultural Expressions
+                List of them:
+                    Classical Dances of Indian (India's classical dances are a vibrant expression of its 
+                    diverse cultural heritage, deeply rooted in tradition, mythology, and spiritual practice. 
+                    Each form tells stories through graceful movements, intricate rhythms, and expressive gestures. 
+                    These dance forms not only reflect regional identities but also embody centuries-old philosophies 
+                    and artistic disciplines. This category explores the origins, evolution, and unique characteristics of 
+                    India's classical dance styles, offering a window into the artistic soul of the nation.),
+                    
+                    Festivals Of India (To experience the festivals of India is to experience the grandeur 
+                    and richness of the Indian cultural heritage. The festivals of India thrive in a culture 
+                    of diversity, and the celebration of these festivals has become a time for cross-cultural 
+                    exchanges. Filled with rituals, music, performances, culinary treats, and more, each 
+                    festival presents its own fascinating history and unique charm. A large diversity of 
+                    customs, traditions, and tales are also associated with festivals. Learn about the 
+                    cultural diversity, customs and traditions, as well as the fascinating stories 
+                    associated with the festivals presented in the categories below, or explore the vibrant 
+                    festivals of the states by clicking on the map or finding your favourite festival.), 
+                    
+                    Food And Culture(The Indian culinary repertoire reflects the cultural diversity of the 
+                    country. The term “Indian food” denotes a mélange of flavours from different parts of 
+                    the country and showcases centuries of cultural exchange with the far corners of the 
+                    world. Here, on our portal, we are making a small effort of gradually building a 
+                    treasure trove of information about the countless exquisite flavours of our country. 
+                    It is an ongoing venture and over time we aim to capture as much as possible of the 
+                    incredible culinary diversity of this land.), Musical Instruments Of India
+
+                    Musical Instruments of India(The Musical Instruments section of the Indian Culture 
+                    portal contains information about a range of instruments from across India. 
+                    The Indian Culture portal has researched and is happy to present information 
+                    about the countless exquisite musical instruments of our country.)
+
+                    Textiles and fabrics of India (Textiles and Fabrics of India is an attempt to showcase 
+                    and celebrate the long and diverse tradition of Textiles in India. The history of this 
+                    craft goes back to the ancient period. This section highlights and honours the 
+                    craftsmanship of the Indian handloom workers, embroiderers, block printers, painters 
+                    and others who have immensely contributed to build a distinct textile industry for India.)
+
+                    Timeless Trends (n both its traditional and modern manifestations, Indian art exhibits a 
+                    powerful sense of design and a vivid imagination. These are reflected in sculptures, 
+                    paintings, murals, architecture, coins, and items of personal adornment like jewellery, 
+                    clothing, and more. Surviving the vagaries of time, many of these artefacts are now 
+                    preserved in museums, archaeological sites and cultural institutions. These seemingly 
+                    ordinary artefacts act as a repository of knowledge that conveys information about the 
+                    society of their time. Timeless Trends celebrates the interconnectedness of the past and 
+                    the present and attempts to discover the links between the cultures and traditions we 
+                    cherish, the structures and sites that dot our modern landscapes, and the little things 
+                    that we do and say every day.) 
+                    
+                subcategory 2: Legends and Legacies
+                    Folktales Of India (India has a rich and diverse tradition of folktales, shaped by its many languages, 
+                    cultures, and regions. These stories—ranging from fables and fairytales to myths and legends—have been 
+                    passed down through generations, reflecting the values, beliefs, and imaginations of the people. 
+                    Fables use animal characters to teach moral lessons, while fairytales often involve magical beings, 
+                    heroic quests, and transformations. Myths recount the exploits of gods and divine beings, explaining 
+                    creation, duty, and cosmic order, whereas legends celebrate the lives of saints, warriors, poets, and 
+                    jesters whose deeds live on in collective memory. Whether shared in gatherings, temples, courts, or 
+                    classrooms, these tales continue to captivate audiences, preserving the spirit of India's vibrant 
+                    storytelling heritage.)
+                    
+                    Healing Through The Ages(The 'Healing Through the Ages' category aims to trace the various dimensions and understanding of ailments and cures across India. It is a repository 
+                    which brings together the different meanings of 'health' and provides an overview of both conventional 
+                    and unconventional approaches to maintaining balance and restoring a sense of well-being. It will help 
+                    you traverse historical, regional and cultural boundaries, and help you to cultivate a nuanced 
+                    understanding of suffering and healing.)
+
+                    Iconic Battles Of India(Warfare has shaped the course of Indian history. The subcontinent 
+                    has witnessed epic battles that not only altered its destiny but also influenced the world 
+                    at large. This section delves into twelve iconic battles that changed the tide of Indian 
+                    history, tracing the evolution of warfare across different eras. Each of these conflicts 
+                    marked the rise or fall of dynasties, introduced new systems of governance, and gave birth 
+                    to lasting traditions, beliefs, and cultural patterns that continue to shape India's 
+                    identity today.)
+                     
+                    Jewellery Of The Nizams
+                    
+                    Legendary Figures Of India(Throughout its rich and diverse history India has been home 
+                    to towering personalities whose contributions transcended their time. This category 
+                    explores the lives and legacies of such extraordinary individuals who have profoundly 
+                    shaped India's history through their vision courage and intellect. Spanning a diverse 
+                    spectrum of emperors spiritual leaders social reformers scholars and freedom fighters 
+                    these iconic personalities represent the enduring spirit of resilience innovation and 
+                    leadership. Their contributions not only influenced the course of the nation's political 
+                    and cultural development but also continue to inspire generations with their unwavering 
+                    commitment to justice knowledge and progress. Through their remarkable journeys they have 
+                    helped define the soul of India and left an indelible imprint on its collective memory.)
+                
+                subcategory 3: Pan India Explorations
+                    Historic Cities Of India(The map of India is dotted with cities that so many of us call home. Many of these cities have origins in our collective history. While they may now be modern and dynamic centres, they continue to represent centuries of culture and heritage that even today, sets them apart from every other city across the globe. Explore these unique urban centres and everything that they have to offer at your own pace, through a virtual expedition. Click on the icons to the right to begin a virtual visit to these historic cities! Each city has its own story, one that is told here through a collection of rare photographs, multimedia, specially-narrated tales, and more. We invite you to sift through them, explore, and discover your own favourite stories about every city.)
+                    States Of India(India, a vast and vibrant nation, is a mosaic of diverse states, each woven with a unique thread of culture, history, and tradition. From the majestic, snow-capped mountains in the north to the sun-drenched coastlines in the south, each state offers a rich and varied blend of languages, cuisines, arts, and festivals. This category delves into the architectural marvels that adorn the country, the profound literary contributions from various corners, and the abundant interesting anecdotes that shape each state’s identity. It also meticulously charts the historical development of these regions through different ages, reflecting India's millennia- old heritage. Each state, with its distinct character, forms a thread in the extraordinary fabric of India.)
+                    Unesco 
+                
+                subcategory 4: Built Heritage
+                    3d Explorations(The Indian culinary repertoire reflects the cultural diversity of the country. The term “Indian food” denotes a mélange of flavours from different parts of the country and showcases centuries of cultural exchange with the far corners of the world. Here, on our portal, we are making a small effort of gradually building a treasure trove of information about the countless exquisite flavours of our country. It is an ongoing venture and over time we aim to capture as much as possible of the incredible culinary diversity of this land.)
+                    Ajanta Caves(The Ajantā caves are rock-cut Buddhist cave temples carved out of a horseshoe shaped valley near the Waghora river at the edge of the Indyadhri range. The caves are a UNESCO World Heritage site and are thronged by thousands of tourists who come to admire its serene location, rock-cut architecture and beautiful Buddhist paintings that are found in the caves. These 30 rock-cut caves are part of a constellation of Buddhist cave temples dotting the Sahayādri or Western Ghats in Maharashtra. But Ajantā is unique as it hosts the finest specimens of art - Cave 9 and 10 contain the oldest Buddhist narrative paintings in India.)
+                    Forts Of India(The Forts of India are some of the most awe-inspiring monuments found in the country. From the Himalayas to the peninsular tip, from the deserts to the lush valleys of North-East, forts adorn each and every corner of the landscape of the Indian subcontinent. This section aims to provide a comprehensive overview of these magnificent monuments that bear the stories of the political vicissitudes of our country.)
+                
+                subcategory 5: Footprint of Freedom
+                    Districts Of Defiance(The history of the freedom movement in India comprises a multitude of revolutionary events that helped achieve independence. While a few momentous upheavals and personalities stand out in this historical narrative, the independence of India is also attributed to a series of valuable yet lesser-known incidents that took place in different districts across the country. The Digital District Repository is an attempt to discover and document the memory of these countless stories, events, sites and individuals.)
+                    Freedom Archive(This section contains a collection of rare archival material such as books, photographs, gazetteers, letters, newspaper clippings and much more on the freedom struggle of India. The freedom movement engulfed the entire country and people from all walks of life joined hands to drive the foreign oppressors out of this land. Even after more than 7 decades of freedom, these stories of courage, selflessness and determination continue to inspire and instill pride in us. The present section aims to preserve and bring to light rare glimpses of the fight for freedom in the form of digital records.)
+                
+                subcategory 6: Cultural Chronicles
+                    Photo Essays 
+                    Retrieved Artefacts Of India(For millennia, India has been a melting pot of diverse cultures, boasting a rich heritage of breathtaking sculptures and artwork. Yet, over centuries, conquerors and colonial powers relentlessly pillaged this heritage, a trend continued by modern looters and smugglers. Consequently, much of India’s historical wealth found its way to Western museums and private collections, resulting in a profound cultural loss that deprives future generations of their rich and intricate heritage. The theft or loss of an artefact signifies the erasure of a piece of history and the collective memory it embodies. Removing artefacts from their original locations strips them of their intrinsic significance, depriving future generations of cultural insights. However, in the past decade, concerted efforts by Indian and international governments, NGOs, journalists, and heritage activists have succeeded in repatriating 358 artefacts back to India. Explore this section to delve into the world of Retrieved Artefacts, uncovering their repatriation stories, heritage, and the legal frameworks that protect them.)
+                    Snippets
+                    Stories
+
+            2. Textual Repository: Archives, E-Books, Gazettes and Gazetteers, Indian National Bibliography,
+            Manuscripts, Other-Collections, Rare Books, Reports and Proceedings, Research Papers, Union Catalogue
+
+            3. Audio & Visual Repository: Audios, Images, Intangible-Cultural-Heritage, Museum-Collections, 
+            Paintings, Photos-Archives, Videos
+
+            4. Activities (Games): Crossword, Puzzle, Quiz
+
+        Capabilties: Q/A with the content, Search the website, summarise pages when pages contain lot of text.
         """
 
     qa_prompt = PromptTemplate.from_template(
@@ -266,8 +390,9 @@ def general_query_answer(state: State):
             - Focus on answering ONLY the latest user question.
             - Do not repeat prior answers unless explicitly asked.
             - Do not every start you answer with a greeting.
-
-            - Keep your answer under 70-80 words.
+            - Answer capabilites in pointers.
+            - Whenever asked about categories give a brief intro as well.
+            - Keep your answer under 100-120 words.
 
             Context:
             {knowledge_context}
@@ -691,11 +816,13 @@ def summarise_page_endpoint():
                     api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/ald-msm?page={page}&&field_state_name_value='
                 elif museum == 'Victoria-Memorial-Hall-Kolkata':
                     api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/vmh?page={0}&&field_state_name_value='
-            
-            elif (subcategory_type == 'type-of-textiles'):
-                section = parsed_url.split('/')[3].lower()
-                api_url = f'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/type-of-textile/{section}?page=0&&field_state_name_value='
-                print(api_url)
+
+# this need to be changed            
+            # elif (subcategory_type == 'type-of-textiles'):
+            #     section = parsed_url.split('/')[3].lower()
+            #     api_url = f'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/type-of-textile/{section}?page=0&&field_state_name_value='
+
+            #     print(api_url)
 
 
             data = extract_page_content(api_url)
@@ -939,7 +1066,8 @@ def summarise_page_endpoint():
 #-----------------------------------------------------------------------------
     
     # DOD
-    def handle_DOD(parsed_url, page, nid, language):            
+    def handle_DOD(parsed_url, page, nid, language):  
+        all_titles = []          
         try:
             if 'Story' in parsed_url:
                 api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3ADDR%20Story'
@@ -959,8 +1087,13 @@ def summarise_page_endpoint():
             if not data or 'results' not in data:
                 return jsonify({"summary": "No data found"}), 404
 
-            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
-
+            if nid:
+                subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+            else:
+                for entry in data['results']:
+                    all_titles.append(entry['title'])
+                subcategory_data = all_titles
+            
             if subcategory_data:
                 answer = summarise_content(subcategory_data, language)               
                 return jsonify({'summary': answer}), 200
@@ -1226,7 +1359,6 @@ def summarise_page_endpoint():
                         api_url = 'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/bihar-through?page=0&&field_state_name_value='
                         
                         content = {}
-
                         data = extract_page_content(api_url)
 
                         if not data or 'results' not in data:
@@ -1248,6 +1380,59 @@ def summarise_page_endpoint():
 
                     elif section == 'art-and-architecture':
                         api_url = 'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/art-architecture?page=0&&field_state_name_value='
+                        
+                        content = {}
+                        data = extract_page_content(api_url)
+
+                        if not data or 'results' not in data:
+                            return jsonify({"summary": "No data found"}), 404
+
+                        if nid:
+                            subcategory_data = next(
+                                (category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)),
+                                None
+                            )
+                        else:
+                            subcategory_data = data
+
+                            for res in subcategory_data['results']:
+                                for res in subcategory_data['results']:
+                                    try:
+                                        title = res.get('title', 'Untitled')
+                                        raw_json = res.get('field_marker_details', '{}')
+                                        parsed_json = json.loads(raw_json)
+
+                                        search_results = parsed_json.get('search_results', [])
+                                        if not search_results or not isinstance(search_results, list):
+                                            continue  # Skip if empty or malformed
+
+                                        # Safely get the first marker if present
+                                        marker = search_results[0]
+                                        html_description = marker.get('field_marker_description', '').strip()
+
+                                        if not html_description:
+                                            continue  # Skip if description is empty
+
+                                        # Clean HTML
+                                        soup = BeautifulSoup(html_description, 'html.parser')
+                                        clean_text = soup.get_text(separator=' ', strip=True)
+
+                                        # First 80 words
+                                        first_80_words = ' '.join(clean_text.split()[:80])
+
+                                        if first_80_words:
+                                            content[title] = first_80_words
+
+                                    except Exception as e:
+                                        print(f"Error processing {res.get('title', 'Unknown')}: {e}")
+                                        continue
+
+                            if content:
+                                answer = summarise_content(content, language)
+                                return jsonify({'summary': answer}), 200
+                            else:
+                                return jsonify({'summary': 'No valid descriptions found.'}), 404
+                                            
                     elif section == 'freedom-archive':
                         api_url  = 'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/freedom-archive?page=0&&field_state_name_value='
 
@@ -1624,7 +1809,4 @@ def clear_memory():
     global thread_id
     thread_id += 1
     return jsonify({"message": "Memory cleared successfully"}), 200
-
-if __name__ == '__main__':
-    app.run(debug = True)
 
