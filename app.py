@@ -29,8 +29,8 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 memory = MemorySaver()
 thread_id = 1
 
-Session = sessionmaker(bind=engine)
-session = Session()
+# Session = sessionmaker(bind=engine)
+# session = Session()
 
 class State(TypedDict):
     intent: str
@@ -642,15 +642,15 @@ def query():
         if node:
             json_data = json.loads(node['response'][0]['content'])
             # Save chat history
-            ist = timezone(timedelta(hours=5, minutes=30))
-            chat_history_obj = ChatHistory(
-                thread_id=thread_id,
-                timestamp=datetime.now(ist).replace(microsecond=0),
-                user_query=user_query
-            )
-            session.add(chat_history_obj)
-            session.commit()
-            print('Entry committed to database')
+            # ist = timezone(timedelta(hours=5, minutes=30))
+            # chat_history_obj = ChatHistory(
+            #     thread_id=thread_id,
+            #     timestamp=datetime.now(ist).replace(microsecond=0),
+            #     user_query=user_query
+            # )
+            # session.add(chat_history_obj)
+            # session.commit()
+            # print('Entry committed to database')
             thread_id += 1
 
             return jsonify({'answer': json_data}), 200
