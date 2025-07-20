@@ -15,9 +15,6 @@ import requests
 from urllib.parse import urlparse
 import json
 import tiktoken
-# from queries_log import ChatHistory, engine
-# from datetime import datetime, timedelta, timezone
-# from sqlalchemy.orm import sessionmaker
 import html
 
 app = Flask(__name__)
@@ -28,9 +25,6 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 memory = MemorySaver()
 thread_id = 1
-
-# Session = sessionmaker(bind=engine)
-# session = Session()
 
 class State(TypedDict):
     intent: str
@@ -479,7 +473,7 @@ def specialised_query_answer(state: State):
     if state['intent'] == "Specialised":
         conversation_history = ""
         if len(state['user_query']) > 1:
-            prev_msg = state['user_query'][-2]  # second last message
+            prev_msg = state['user_query'][-2]  
             role = (
                 "User" if prev_msg.type == "human" else
                 "Assistant" if prev_msg.type == "ai" else
@@ -495,7 +489,7 @@ def specialised_query_answer(state: State):
 
         chain = qa_prompt | llm
         response = chain.invoke({
-            'context': truncate_context(state['context'], max_words=200),
+            'context': state['context'],
             'conversation_history': conversation_history.strip(),
             'latest_question': latest_question
         })
@@ -546,6 +540,7 @@ def specialised_query_answer(state: State):
 
         json_str = json.dumps(parsed_json, ensure_ascii=False)
 
+
         return {
             'response': [{
                 'role': 'assistant',
@@ -569,6 +564,7 @@ def answer_query(state:State):
         if similar_title_ids:
             sql_query_result = generate_sql_query(ids=similar_title_ids)
             context = sql_query_result.to_string() if isinstance(sql_query_result, pd.DataFrame) else sql_query_result
+            print('context', context)
         else:
             print("Debug: No similar titles found.")
             context = ''
@@ -641,16 +637,6 @@ def query():
         node = event_map.get('specialised_query_response')
         if node:
             json_data = json.loads(node['response'][0]['content'])
-            # Save chat history
-            # ist = timezone(timedelta(hours=5, minutes=30))
-            # chat_history_obj = ChatHistory(
-            #     thread_id=thread_id,
-            #     timestamp=datetime.now(ist).replace(microsecond=0),
-            #     user_query=user_query
-            # )
-            # session.add(chat_history_obj)
-            # session.commit()
-            # print('Entry committed to database')
             thread_id += 1
 
             return jsonify({'answer': json_data}), 200
@@ -1809,4 +1795,7 @@ def clear_memory():
     global thread_id
     thread_id += 1
     return jsonify({"message": "Memory cleared successfully"}), 200
+
+if __name__ == '__main__':
+    app.run(debug = True)
 
