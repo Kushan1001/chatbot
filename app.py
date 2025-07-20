@@ -15,9 +15,9 @@ import requests
 from urllib.parse import urlparse
 import json
 import tiktoken
-from queries_log import ChatHistory, engine
-from datetime import datetime, timedelta, timezone
-from sqlalchemy.orm import sessionmaker
+# from queries_log import ChatHistory, engine
+# from datetime import datetime, timedelta, timezone
+# from sqlalchemy.orm import sessionmaker
 import html
 
 app = Flask(__name__)
