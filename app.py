@@ -954,7 +954,7 @@ def summarise_page_endpoint():
             base_url = 'https://icvtesting.nvli.in/rest-v1/forts-of-india'
             sub_category = parsed_url.split('/')[2].lower()
 
-            if sub_category == 'discover-the-forts-of-india':
+            if sub_category == 'discover-forts-of-india':
                 api_url = f'{base_url}/discovering-the-forts-of-india?page={page if page != "" else 0}'
             elif sub_category == 'understanding-the-forts':
                 api_url = f'{base_url}/understanding-forts?page={page if page != "" else 0}'
@@ -972,15 +972,13 @@ def summarise_page_endpoint():
             if nid:
                 subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
             else:
-                subcategory_data = data
+                subcategory_data = [category_data['title'] for category_data in data['results'] if 'title' in category_data]
             
             if subcategory_data:
                 answer = summarise_content(subcategory_data, language)               
                 return jsonify({'summary': answer}), 200
             else:
                 return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
-
-     
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
