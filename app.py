@@ -647,7 +647,7 @@ def query():
         node = event_map.get('general_query_response')
         if node:
             return jsonify({'answer': node['response']}), 200
-        else:
+        else:   
             return jsonify({'answer': 'No general response generated.'}), 500
 
     elif intent == 'Greeting':
@@ -802,19 +802,31 @@ def summarise_page_endpoint():
                     api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/ald-msm?page={page}&&field_state_name_value='
                 elif museum == 'Victoria-Memorial-Hall-Kolkata':
                     api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/vmh?page={0}&&field_state_name_value='
+            
+            elif (subcategory_type == 'type-of-textiles'):
+                section = parsed_url.split('/')[3].lower()
+                api_url = f'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/type-of-textile/{section}?page=0&&field_state_name_value='
+                subcategory_data = []
+                
+                print(api_url)
+                
+                data = extract_page_content(api_url)
 
-# this need to be changed            
-            # elif (subcategory_type == 'type-of-textiles'):
-            #     section = parsed_url.split('/')[3].lower()
-            #     api_url = f'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/type-of-textile/{section}?page=0&&field_state_name_value='
-
-            #     print(api_url)
+                for entry in data['results']:
+                    subcategory_data.append({'title': entry['title'], 'state': entry['field_type_state'] , 'description': entry['nothing']})
+                
+                if subcategory_data:
+                    answer = summarise_content(subcategory_data, language)               
+                    return jsonify({'summary': answer}), 200
+                else:
+                    return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
 
 
             data = extract_page_content(api_url)
+
             if not data or 'results' not in data:
                 return jsonify({"summary": "No data found"}), 404
-
+                
             if nid:
                 subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
             else:
@@ -979,6 +991,7 @@ def summarise_page_endpoint():
                 return jsonify({'summary': answer}), 200
             else:
                 return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
+            
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
@@ -1127,16 +1140,16 @@ def summarise_page_endpoint():
             if sub_category == 'unsung-heroes':
                 api_url = f'https://icvtesting.nvli.in/rest-v1/unsung-heroes?page={page if page != "" else 0}&&field_state_name_value='
             if sub_category == 'historic-cities':
-                city = parsed_url.split('/')[3].lower()
-                api_url = f'https://icvtesting.nvli.in/rest-v1/{city}/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
+                city = parsed_url.split('/')[3].lower().strip()
+                if city != 'patna':
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/{city}/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
+                else:
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/historic-cities/patna/Historic-cities-freedom-movement?page=0&&field_state_name_value='
             if sub_category == 'forts':
                 api_url = f'https://icvtesting.nvli.in/rest-v1/forts-of-india/forts-and-freedom-struggle?page=0&&field_state_name_value='
             if sub_category == 'textile':
                 api_url = f'https://icvtesting.nvli.in/rest-v1/INDIGO-DYE-AND-REVOLT?page=0&&field_state_name_value='
-            if sub_category == 'historic-cities':
-                city = parsed_url.split('/')[3].lower()
-                api_url = f'https://icvtesting.nvli.in/rest-v1/{city}/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
-    
+        
             print(api_url)
 
             data = extract_page_content(api_url)
@@ -1292,13 +1305,12 @@ def summarise_page_endpoint():
     # States of India
     def handle_states(parsed_url, page, nid, language):
         try:
-            base_url = 'https://icpdelhi.nvli.in/states-of-india/east-india' 
             category = parsed_url.split('/')[2].lower().strip()
             sub_category = parsed_url.split('/')[3].lower().strip()
             section = parsed_url.split('/')[4].lower().strip()
-            split = parsed_url.split('/')[5].lower().strip()
 
             if category == 'north-east-india':
+                split = parsed_url.split('/')[5].lower().strip()
                 if sub_category == 'unsung-heroes':
                     api_url = f'https://icvtesting.nvli.in/rest-v1/north-east-archive/unsung-heroes?page=0&&field_state_name_value=?page={page if page != "" else 0}&&field_state_name_value='
                 if sub_category == 'capital-cities-north-east-india':
@@ -1339,6 +1351,8 @@ def summarise_page_endpoint():
                 if sub_category == 'bihar':
                     if section == 'tidbits-tales-and-trivia':
                         api_url = f'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/tidbits-tales-trivia?page=0&&field_state_name_value='
+                    if section == 'digital-archives':
+                        api_url = 'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/digital-archives?page=0&&field_state_name_value='
                     elif section == 'bihar-through-traveller-s-gaze':
                         api_url = 'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/bihar-through?page=0&&field_state_name_value='
                         
@@ -1363,7 +1377,7 @@ def summarise_page_endpoint():
                                 return jsonify({'summary': answer}), 200 
 
                     elif section == 'art-and-architecture':
-                        api_url = 'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/art-architecture?page=0&&field_state_name_value='
+                        api_url = 'https://icvtesting.nvli.in/rest-v1/art-and-architecture-api-pins?page=0&&field_state_name_value='
                         
                         content = {}
                         data = extract_page_content(api_url)
@@ -1374,34 +1388,28 @@ def summarise_page_endpoint():
                         if nid:
                             subcategory_data = next(
                                 (category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)),
-                                None
-                            )
+                                None)
                         else:
                             subcategory_data = data
 
                             for res in subcategory_data['results']:
-                                for res in subcategory_data['results']:
                                     try:
                                         title = res.get('title', 'Untitled')
                                         raw_json = res.get('field_marker_details', '{}')
                                         parsed_json = json.loads(raw_json)
-
                                         search_results = parsed_json.get('search_results', [])
                                         if not search_results or not isinstance(search_results, list):
-                                            continue  # Skip if empty or malformed
+                                            continue 
 
-                                        # Safely get the first marker if present
                                         marker = search_results[0]
                                         html_description = marker.get('field_marker_description', '').strip()
 
                                         if not html_description:
-                                            continue  # Skip if description is empty
+                                            continue  
 
-                                        # Clean HTML
                                         soup = BeautifulSoup(html_description, 'html.parser')
                                         clean_text = soup.get_text(separator=' ', strip=True)
 
-                                        # First 80 words
                                         first_80_words = ' '.join(clean_text.split()[:80])
 
                                         if first_80_words:
@@ -1642,6 +1650,7 @@ def summarise_page_endpoint():
 
     def handle_historical_cities(parsed_url, page, nid, language):
         try:
+            city = parsed_url.split('/')[2].lower().strip()
             api_url = f'https://icvtesting.nvli.in/rest-v1/historic-cities?page=0&&field_state_name_value='
             print('api_url',api_url)
             data = extract_page_content(api_url)
@@ -1658,6 +1667,64 @@ def summarise_page_endpoint():
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+#-----------------------------------------------------------------------------
+
+    def handle_historic_cities_freedom_movement(parsed_url, page, nid, language):
+        try:
+            city = parsed_url.split('/')[2].lower().strip()
+            if city != 'patna':
+                api_url = f'https://icvtesting.nvli.in/rest-v1/{city}/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
+            else:
+                api_url = 'https://icvtesting.nvli.in/rest-v1/historic-cities/patna/Historic-cities-freedom-movement?page=0&&field_state_name_value='
+
+            print(api_url)
+
+            data = extract_page_content(api_url)
+
+            if not data or 'results' not in data:
+                return jsonify({"summary": "No data found"}), 404
+
+            if nid:
+                subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+            else:
+                subcategory_data = data
+            
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404            
+        except Exception as e:
+            print(e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+#-----------------------------------------------------------------------------
+
+    def handle_historic_cities(parsed_url, page, nid, language):
+        print('func called')
+        try:
+            api_url = 'https://icvtesting.nvli.in/rest-v1/historic-cities/delhi/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
+        
+            print(api_url)
+
+            data = extract_page_content(api_url)
+
+            if not data or 'results' not in data:
+                return jsonify({"summary": "No data found"}), 404
+
+            if nid:
+                subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+            else:
+                subcategory_data = data
+            
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)               
+                return jsonify({'summary': answer}), 200
+            else:
+                return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404            
+        except Exception as e:
+            print(e)
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+
 #-----------------------------------------------------------------------------
 
     def handle_folktales(parsed_url, page, nid, language):
@@ -1736,7 +1803,8 @@ def summarise_page_endpoint():
 
         segments = [s for s in parsed_url.split('/') if s]
         category, page, nid = parse_url_segments(segments)
-    
+
+        print('category', category)
 
         if category == 'musical-instruments-of-india':
             return handle_musical_instruments(parsed_url, page, nid, language=lang)
@@ -1754,7 +1822,7 @@ def summarise_page_endpoint():
             return handle_ajanta(parsed_url, page, nid, language=lang)
         elif category == '3d-explorations':
             return handle_virtual_walkthrough(parsed_url, page, nid, language=lang)
-        elif category == 'districts-of-defiance':
+        elif category == 'digital-district-repository':
             return handle_DOD(parsed_url, page, nid, language=lang)
         elif category == 'retrieved-artefacts-of-india':
             return handle_artifacts(parsed_url, page, nid, language=lang)
@@ -1776,6 +1844,10 @@ def summarise_page_endpoint():
             return handle_classical_dances(parsed_url, page, nid, language=lang)
         elif category == 'historic-cities-of-india':
             return handle_historical_cities(parsed_url, page, nid, language=lang)
+        elif category == 'historic-cities-freedom-movement':
+            return handle_historic_cities_freedom_movement(parsed_url, page, nid, language=lang)
+        elif category ==  'historic-cities':
+            return handle_historic_cities(parsed_url, page, nid, language=lang )
         elif category == 'snippets':
             return handle_snippets(parsed_url, page, nid, language=lang)
         elif category == 'stories':
@@ -1793,5 +1865,3 @@ def clear_memory():
     global thread_id
     thread_id += 1
     return jsonify({"message": "Memory cleared successfully"}), 200
-
-
