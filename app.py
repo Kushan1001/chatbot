@@ -1277,9 +1277,9 @@ def summarise_page_endpoint():
                 elif sub_category == 'pilgrimages':
                     api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/fairs-pilgrimages/pilgrimage?page=0&&field_state_name_value='
             if category == 'folk-festivals':
-                if sub_category not in ['honoring-deities','social-traditions', 'celebrating-nature']:
+                if sub_category not in ['honouring-deities','social-traditions', 'celebrating-nature']:
                     api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Celebrating-Nature?page=0&&field_state_name_value='
-                if sub_category == 'honoring-deities':
+                if sub_category == 'honouring-deities':
                     api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Honouring-Deities?page=0&&field_state_name_value='
                 if sub_category == 'social-traditions':
                     api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Social-Traditions?page=0&&field_state_name_value='
