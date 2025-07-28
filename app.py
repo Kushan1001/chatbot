@@ -659,7 +659,7 @@ def query():
         
     else:
         return jsonify({'answer': 'Cannot understand the intent. Please type a proper query.'}), 404
-
+#------------------------------------------------------------------------------------
 
 @app.post('/summarise_page')
 def summarise_page_endpoint():
@@ -790,6 +790,7 @@ def summarise_page_endpoint():
                 print('api_url', api_url)
             
             elif (subcategory_type.lower()) == 'textiles-from-museum':
+                subcategory_data = []
                 museum = parsed_url.split('/')[3].split('=')[-1]
                 print(museum)
                 if museum == 'National-Museum-New-Delhiss' or museum == 'National-Museum-New-Delhi':
@@ -802,7 +803,19 @@ def summarise_page_endpoint():
                     api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/ald-msm?page={page}&&field_state_name_value='
                 elif museum == 'Victoria-Memorial-Hall-Kolkata':
                     api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/vmh?page={0}&&field_state_name_value='
-            
+                
+                data = extract_page_content(api_url)
+
+                for entry in data['results']:
+                    subcategory_data.append({'title': entry['title'], 'type': entry['field_dc_type'], 'material': entry['field_dc_format_material'],
+                                             'state': entry['field_cdwa_location'] ,'date_issued': entry['field_dc_date_issued'] , 'description': entry['field_dc_description']})
+                
+                if subcategory_data:
+                    answer = summarise_content(subcategory_data, language)               
+                    return jsonify({'summary': answer}), 200
+                else:
+                    return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404
+
             elif (subcategory_type == 'type-of-textiles'):
                 section = parsed_url.split('/')[3].lower()
                 api_url = f'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/type-of-textile/{section}?page=0&&field_state_name_value='
@@ -842,8 +855,8 @@ def summarise_page_endpoint():
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
 
 #------------------------------------------------------------------------------------
-    
-    # Timelss Trends
+
+    # Timeless Trends
     def handle_timeless_trends(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends'
