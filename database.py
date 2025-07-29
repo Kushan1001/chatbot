@@ -99,7 +99,7 @@ def generate_sql_query(ids):
     execute_query = QuerySQLDataBaseTool(db=db)
 
     question = (
-            f"Strictly generate a sql query: Select * from Categories where idx in {ids}"
+            f"Strictly generate a sql query: Select * from Categories where index in {ids}"
               "No limit"
 
     )
