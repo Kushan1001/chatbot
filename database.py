@@ -90,18 +90,16 @@ def fetch_similar_titles(query, vector_store=vector_store, threshold=0.65):
     title_ids = [(title.id) for title, score in  result if score > 0.40]
     print('title Ids',title_ids)
     return title_ids
-    
+
 
 # generate SQL query
 def generate_sql_query(ids):
-    print('ids',ids)
     write_query = create_sql_query_chain(llm, db)
     execute_query = QuerySQLDataBaseTool(db=db)
 
     question = (
-            f"Strictly generate a sql query: Select * from Categories where index in {ids}"
+            f"Strictly generate a sql query: Select index, title, catgegory, description, url from Categories where index in {ids}"
               "No limit"
-
     )
 
     response = write_query.invoke({"question": question})
@@ -125,8 +123,3 @@ def generate_sql_query(ids):
 
     output_df = pd.DataFrame(output, columns=columns)
     return output_df
-
-
-
-
-
