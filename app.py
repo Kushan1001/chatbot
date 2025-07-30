@@ -396,7 +396,7 @@ def general_query_answer(state: State):
             - Do not repeat prior answers unless explicitly asked.
             - Do not every start you answer with a greeting.
             - Answer capabilites in pointers.
-            - Give the url of category when asked about a prticular category. Urls should be hyperlinks. Hyperlink name should be same as the category name. Do not give them as texts.
+            - Give the url of category when asked about a prticular category. Urls should be hyperlinks. Hyperlink name should be same as the category name. Do not give them as texts. The size of links should be 10px.
             - Whenever asked about categories give a brief intro as well.
             - Keep your answer under 100-120 words.
             Context:
