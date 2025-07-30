@@ -242,7 +242,7 @@ def greeting_answer(state:State):
 #------------------------------------------------------------------------------------------------
 def general_query_answer(state: State):
     language = state['language']
-
+    
     knowledge_context = """
         Recognizing the ongoing need to position itself for the digital future, 
         Indian Culture is an initiative by the Ministry of Culture. A platform that 
@@ -251,7 +251,7 @@ def general_query_answer(state: State):
         The Indian Culture Portal is a part of the National Virtual Library of India project, 
         funded by the Ministry of Culture, Government of India. The portal has been created and 
         developed by the Indian Institute of Technology (IIT), Bombay. 
-        The content is available both in English and Hindi
+        The content is available both in 18 languages.
 
         
         Categories available on the website:
@@ -263,7 +263,8 @@ def general_query_answer(state: State):
                     Each form tells stories through graceful movements, intricate rhythms, and expressive gestures. 
                     These dance forms not only reflect regional identities but also embody centuries-old philosophies 
                     and artistic disciplines. This category explores the origins, evolution, and unique characteristics of 
-                    India's classical dance styles, offering a window into the artistic soul of the nation.),
+                    India's classical dance styles, offering a window into the artistic soul of the nation.)
+                    (url = https://icpdelhi.nvli.in/classical-dances-of-india),
                     
                     Festivals Of India (To experience the festivals of India is to experience the grandeur 
                     and richness of the Indian cultural heritage. The festivals of India thrive in a culture 
@@ -273,7 +274,8 @@ def general_query_answer(state: State):
                     customs, traditions, and tales are also associated with festivals. Learn about the 
                     cultural diversity, customs and traditions, as well as the fascinating stories 
                     associated with the festivals presented in the categories below, or explore the vibrant 
-                    festivals of the states by clicking on the map or finding your favourite festival.), 
+                    festivals of the states by clicking on the map or finding your favourite festival.)
+                    (url = https://icpdelhi.nvli.in/festivals-of-india), 
                     
                     Food And Culture(The Indian culinary repertoire reflects the cultural diversity of the 
                     country. The term “Indian food” denotes a mélange of flavours from different parts of 
@@ -282,17 +284,20 @@ def general_query_answer(state: State):
                     treasure trove of information about the countless exquisite flavours of our country. 
                     It is an ongoing venture and over time we aim to capture as much as possible of the 
                     incredible culinary diversity of this land.), Musical Instruments Of India
+                    (url = https://icpdelhi.nvli.in/food-and-culture),
 
                     Musical Instruments of India(The Musical Instruments section of the Indian Culture 
                     portal contains information about a range of instruments from across India. 
                     The Indian Culture portal has researched and is happy to present information 
                     about the countless exquisite musical instruments of our country.)
+                    (url = https://icpdelhi.nvli.in/musical-instruments-of-india),
 
                     Textiles and fabrics of India (Textiles and Fabrics of India is an attempt to showcase 
                     and celebrate the long and diverse tradition of Textiles in India. The history of this 
                     craft goes back to the ancient period. This section highlights and honours the 
                     craftsmanship of the Indian handloom workers, embroiderers, block printers, painters 
                     and others who have immensely contributed to build a distinct textile industry for India.)
+                    (url = https://icpdelhi.nvli.in/textiles-and-fabrics-of-india),
 
                     Timeless Trends (n both its traditional and modern manifestations, Indian art exhibits a 
                     powerful sense of design and a vivid imagination. These are reflected in sculptures, 
@@ -303,7 +308,7 @@ def general_query_answer(state: State):
                     society of their time. Timeless Trends celebrates the interconnectedness of the past and 
                     the present and attempts to discover the links between the cultures and traditions we 
                     cherish, the structures and sites that dot our modern landscapes, and the little things 
-                    that we do and say every day.) 
+                    that we do and say every day.) (url = https://icpdelhi.nvli.in/timeless-trends),
                     
                 subcategory 2: Legends and Legacies
                     Folktales Of India (India has a rich and diverse tradition of folktales, shaped by its many languages, 
@@ -314,13 +319,13 @@ def general_query_answer(state: State):
                     creation, duty, and cosmic order, whereas legends celebrate the lives of saints, warriors, poets, and 
                     jesters whose deeds live on in collective memory. Whether shared in gatherings, temples, courts, or 
                     classrooms, these tales continue to captivate audiences, preserving the spirit of India's vibrant 
-                    storytelling heritage.)
+                    storytelling heritage.) (url = https://icpdelhi.nvli.in/folktales-of-india),
                     
                     Healing Through The Ages(The 'Healing Through the Ages' category aims to trace the various dimensions and understanding of ailments and cures across India. It is a repository 
                     which brings together the different meanings of 'health' and provides an overview of both conventional 
                     and unconventional approaches to maintaining balance and restoring a sense of well-being. It will help 
                     you traverse historical, regional and cultural boundaries, and help you to cultivate a nuanced 
-                    understanding of suffering and healing.)
+                    understanding of suffering and healing.) (url = https://icpdelhi.nvli.in/healing-through-the-ages),
 
                     Iconic Battles Of India(Warfare has shaped the course of Indian history. The subcontinent 
                     has witnessed epic battles that not only altered its destiny but also influenced the world 
@@ -328,9 +333,9 @@ def general_query_answer(state: State):
                     history, tracing the evolution of warfare across different eras. Each of these conflicts 
                     marked the rise or fall of dynasties, introduced new systems of governance, and gave birth 
                     to lasting traditions, beliefs, and cultural patterns that continue to shape India's 
-                    identity today.)
+                    identity today.) (url = https://icpdelhi.nvli.in/iconic-battles-of-india),
                      
-                    Jewellery Of The Nizams
+                    Jewellery Of The Nizams (url = https://icpdelhi.nvli.in/jewellery-of-the-nizams),
                     
                     Legendary Figures Of India(Throughout its rich and diverse history India has been home 
                     to towering personalities whose contributions transcended their time. This category 
@@ -342,34 +347,40 @@ def general_query_answer(state: State):
                     and cultural development but also continue to inspire generations with their unwavering 
                     commitment to justice knowledge and progress. Through their remarkable journeys they have 
                     helped define the soul of India and left an indelible imprint on its collective memory.)
+                    (url = https://icpdelhi.nvli.in/legendary-figures-of-india),
                 
                 subcategory 3: Pan India Explorations
-                    Historic Cities Of India(The map of India is dotted with cities that so many of us call home. Many of these cities have origins in our collective history. While they may now be modern and dynamic centres, they continue to represent centuries of culture and heritage that even today, sets them apart from every other city across the globe. Explore these unique urban centres and everything that they have to offer at your own pace, through a virtual expedition. Click on the icons to the right to begin a virtual visit to these historic cities! Each city has its own story, one that is told here through a collection of rare photographs, multimedia, specially-narrated tales, and more. We invite you to sift through them, explore, and discover your own favourite stories about every city.)
-                    States Of India(India, a vast and vibrant nation, is a mosaic of diverse states, each woven with a unique thread of culture, history, and tradition. From the majestic, snow-capped mountains in the north to the sun-drenched coastlines in the south, each state offers a rich and varied blend of languages, cuisines, arts, and festivals. This category delves into the architectural marvels that adorn the country, the profound literary contributions from various corners, and the abundant interesting anecdotes that shape each state’s identity. It also meticulously charts the historical development of these regions through different ages, reflecting India's millennia- old heritage. Each state, with its distinct character, forms a thread in the extraordinary fabric of India.)
-                    Unesco 
+                    Historic Cities Of India(The map of India is dotted with cities that so many of us call home. Many of these cities have origins in our collective history. While they may now be modern and dynamic centres, they continue to represent centuries of culture and heritage that even today, sets them apart from every other city across the globe. Explore these unique urban centres and everything that they have to offer at your own pace, through a virtual expedition. Click on the icons to the right to begin a virtual visit to these historic cities! Each city has its own story, one that is told here through a collection of rare photographs, multimedia, specially-narrated tales, and more. We invite you to sift through them, explore, and discover your own favourite stories about every city.) (url = 'https://icpdelhi.nvli.in/historic-cities-of-india'),
+                    States Of India(India, a vast and vibrant nation, is a mosaic of diverse states, each woven with a unique thread of culture, history, and tradition. From the majestic, snow-capped mountains in the north to the sun-drenched coastlines in the south, each state offers a rich and varied blend of languages, cuisines, arts, and festivals. This category delves into the architectural marvels that adorn the country, the profound literary contributions from various corners, and the abundant interesting anecdotes that shape each state's identity. It also meticulously charts the historical development of these regions through different ages, reflecting India's millennia- old heritage. Each state, with its distinct character, forms a thread in the extraordinary fabric of India.) (url = 'https://icpdelhi.nvli.in/states-of-india'),
+                    Unesco (url = https://icpdelhi.nvli.in/unesco),
                 
                 subcategory 4: Built Heritage
-                    3d Explorations(The Indian culinary repertoire reflects the cultural diversity of the country. The term “Indian food” denotes a mélange of flavours from different parts of the country and showcases centuries of cultural exchange with the far corners of the world. Here, on our portal, we are making a small effort of gradually building a treasure trove of information about the countless exquisite flavours of our country. It is an ongoing venture and over time we aim to capture as much as possible of the incredible culinary diversity of this land.)
-                    Ajanta Caves(The Ajantā caves are rock-cut Buddhist cave temples carved out of a horseshoe shaped valley near the Waghora river at the edge of the Indyadhri range. The caves are a UNESCO World Heritage site and are thronged by thousands of tourists who come to admire its serene location, rock-cut architecture and beautiful Buddhist paintings that are found in the caves. These 30 rock-cut caves are part of a constellation of Buddhist cave temples dotting the Sahayādri or Western Ghats in Maharashtra. But Ajantā is unique as it hosts the finest specimens of art - Cave 9 and 10 contain the oldest Buddhist narrative paintings in India.)
-                    Forts Of India(The Forts of India are some of the most awe-inspiring monuments found in the country. From the Himalayas to the peninsular tip, from the deserts to the lush valleys of North-East, forts adorn each and every corner of the landscape of the Indian subcontinent. This section aims to provide a comprehensive overview of these magnificent monuments that bear the stories of the political vicissitudes of our country.)
+                    3d Explorations(The Indian culinary repertoire reflects the cultural diversity of the country. The term “Indian food” denotes a mélange of flavours from different parts of the country and showcases centuries of cultural exchange with the far corners of the world. Here, on our portal, we are making a small effort of gradually building a treasure trove of information about the countless exquisite flavours of our country. It is an ongoing venture and over time we aim to capture as much as possible of the incredible culinary diversity of this land.) (url = https://icpdelhi.nvli.in/3d-Explorations),
+                    Ajanta Caves(The Ajantā caves are rock-cut Buddhist cave temples carved out of a horseshoe shaped valley near the Waghora river at the edge of the Indyadhri range. The caves are a UNESCO World Heritage site and are thronged by thousands of tourists who come to admire its serene location, rock-cut architecture and beautiful Buddhist paintings that are found in the caves. These 30 rock-cut caves are part of a constellation of Buddhist cave temples dotting the Sahayādri or Western Ghats in Maharashtra. But Ajantā is unique as it hosts the finest specimens of art - Cave 9 and 10 contain the oldest Buddhist narrative paintings in India.) (url = https://icpdelhi.nvli.in/3d-Explorations),
+                    Forts Of India(The Forts of India are some of the most awe-inspiring monuments found in the country. From the Himalayas to the peninsular tip, from the deserts to the lush valleys of North-East, forts adorn each and every corner of the landscape of the Indian subcontinent. This section aims to provide a comprehensive overview of these magnificent monuments that bear the stories of the political vicissitudes of our country.) (url = https://icpdelhi.nvli.in/forts-of-india),
                 
                 subcategory 5: Footprint of Freedom
-                    Districts Of Defiance(The history of the freedom movement in India comprises a multitude of revolutionary events that helped achieve independence. While a few momentous upheavals and personalities stand out in this historical narrative, the independence of India is also attributed to a series of valuable yet lesser-known incidents that took place in different districts across the country. The Digital District Repository is an attempt to discover and document the memory of these countless stories, events, sites and individuals.)
-                    Freedom Archive(This section contains a collection of rare archival material such as books, photographs, gazetteers, letters, newspaper clippings and much more on the freedom struggle of India. The freedom movement engulfed the entire country and people from all walks of life joined hands to drive the foreign oppressors out of this land. Even after more than 7 decades of freedom, these stories of courage, selflessness and determination continue to inspire and instill pride in us. The present section aims to preserve and bring to light rare glimpses of the fight for freedom in the form of digital records.)
+                    Districts Of Defiance(The history of the freedom movement in India comprises a multitude of revolutionary events that helped achieve independence. While a few momentous upheavals and personalities stand out in this historical narrative, the independence of India is also attributed to a series of valuable yet lesser-known incidents that took place in different districts across the country. The Digital District Repository is an attempt to discover and document the memory of these countless stories, events, sites and individuals.) (url = https://icpdelhi.nvli.in/digital-district-repository),
+                    Freedom Archive(This section contains a collection of rare archival material such as books, photographs, gazetteers, letters, newspaper clippings and much more on the freedom struggle of India. The freedom movement engulfed the entire country and people from all walks of life joined hands to drive the foreign oppressors out of this land. Even after more than 7 decades of freedom, these stories of courage, selflessness and determination continue to inspire and instill pride in us. The present section aims to preserve and bring to light rare glimpses of the fight for freedom in the form of digital records.) (url = https://icpdelhi.nvli.in/freedom-archive),
                 
                 subcategory 6: Cultural Chronicles
-                    Photo Essays 
-                    Retrieved Artefacts Of India(For millennia, India has been a melting pot of diverse cultures, boasting a rich heritage of breathtaking sculptures and artwork. Yet, over centuries, conquerors and colonial powers relentlessly pillaged this heritage, a trend continued by modern looters and smugglers. Consequently, much of India’s historical wealth found its way to Western museums and private collections, resulting in a profound cultural loss that deprives future generations of their rich and intricate heritage. The theft or loss of an artefact signifies the erasure of a piece of history and the collective memory it embodies. Removing artefacts from their original locations strips them of their intrinsic significance, depriving future generations of cultural insights. However, in the past decade, concerted efforts by Indian and international governments, NGOs, journalists, and heritage activists have succeeded in repatriating 358 artefacts back to India. Explore this section to delve into the world of Retrieved Artefacts, uncovering their repatriation stories, heritage, and the legal frameworks that protect them.)
-                    Snippets
-                    Stories
+                    Photo Essays (url = https://icpdelhi.nvli.in/photo-essays),
+                    Retrieved Artefacts Of India(For millennia, India has been a melting pot of diverse cultures, boasting a rich heritage of breathtaking sculptures and artwork. Yet, over centuries, conquerors and colonial powers relentlessly pillaged this heritage, a trend continued by modern looters and smugglers. Consequently, much of India's historical wealth found its way to Western museums and private collections, resulting in a profound cultural loss that deprives future generations of their rich and intricate heritage. The theft or loss of an artefact signifies the erasure of a piece of history and the collective memory it embodies. Removing artefacts from their original locations strips them of their intrinsic significance, depriving future generations of cultural insights. However, in the past decade, concerted efforts by Indian and international governments, NGOs, journalists, and heritage activists have succeeded in repatriating 358 artefacts back to India. Explore this section to delve into the world of Retrieved Artefacts, uncovering their repatriation stories, heritage, and the legal frameworks that protect them.) (url = https://icpdelhi.nvli.in/retrieved-artefacts-of-india),
+                    Snippets (url = https://icpdelhi.nvli.in/retrieved-artefacts-of-india),
+                    Stories (url = https://icpdelhi.nvli.in/stories),
 
-            2. Textual Repository: Archives, E-Books, Gazettes and Gazetteers, Indian National Bibliography,
-            Manuscripts, Other-Collections, Rare Books, Reports and Proceedings, Research Papers, Union Catalogue
+            2. Textual Repository: Archives (url = https://icpdelhi.nvli.in/archives), E-Books (url = https://icpdelhi.nvli.in/e-books), Gazettes and Gazetteers (url = https://icpdelhi.nvli.in/gazettes-and-gazetteers), Indian National Bibliography (url = https://inb.nvli.in/cgi-bin/koha/opac-search.pl?advsearch=1&idx=kw&limit=branch%3ACRL&sort_by=relevance&do=Search),
+            Manuscripts (url = https://icpdelhi.nvli.in/manuscripts), Other-Collections (url = https://icpdelhi.nvli.in/other-collections), Rare Books (url = https://icpdelhi.nvli.in/rare-books), Reports and Proceedings (url = https://icpdelhi.nvli.in/reports-and-proceedings) , Research Papers (url = https://icpdelhi.nvli.in/research-papers), Union Catalogue (url = https://indianculture.gov.in/union-catalogue),
 
-            3. Audio & Visual Repository: Audios, Images, Intangible-Cultural-Heritage, Museum-Collections, 
-            Paintings, Photos-Archives, Videos
+            3. Audio & Visual Repository: Audios (url = https://icpdelhi.nvli.in/audios), Images (url = https://icpdelhi.nvli.in/images), Intangible-Cultural-Heritage (url = https://icpdelhi.nvli.in/intangible-cultural-heritage), Museum-Collections (url = https://icpdelhi.nvli.in/museum-collections), 
+            Paintings(url = https://icpdelhi.nvli.in/paintings), Photos-Archives (url = https://icpdelhi.nvli.in/photo-archives), Videos (url = https://icpdelhi.nvli.in/videos),
 
-            4. Activities (Games): Crossword, Puzzle, Quiz
+            4. Activities (Games): Crossword (url = https://icpdelhi.nvli.in/Crossword), Puzzle (url = https://icpdelhi.nvli.in/Puzzle), Quiz (url = https://icpdelhi.nvli.in/Quiz),
+
+            5. Tools: Flagship Events: The Indian Culture Portal (ICP) was an integral participant in five flagship events organized by the Ministry of Culture. Beyond its interactive and informative exhibition booths, ICP played a pivotal role in the conceptualization, design, and production of key publications and launches. Through thoughtfully curated content, immersive visitor experiences, and innovative communication tools, ICP contributes significantly to the dissemination and celebration of India's cultural heritage (url = https://icpdelhi.nvli.in/flagship-events),
+                      Outreach: Discover how the Indian Culture Portal connects with institutions, communities, and experts across the country to preserve and promote India’s rich cultural heritage. Our outreach initiatives foster collaboration, build awareness, and bring culture closer to people through workshops, partnerships, and public engagement (url = https://icpdelhi.nvli.in/outreach),
+                      Publications: This section showcases original publications, books, and graphic novels developed by the Indian Culture Portal, alongside publications created by partner organizations within the Ministry of Culture. It also includes select works that were officially unveiled during key Ministry events (url = https://icpdelhi.nvli.in/publications),
+
 
         Capabilties: Q/A with the content, Search the website, summarise pages when pages contain lot of text.
         """
@@ -385,9 +396,9 @@ def general_query_answer(state: State):
             - Do not repeat prior answers unless explicitly asked.
             - Do not every start you answer with a greeting.
             - Answer capabilites in pointers.
+            - Give the url of category when asked about a prticular category. Urls should be hyperlinks. Hyperlink name should be same as the category name. Do not give them as texts.
             - Whenever asked about categories give a brief intro as well.
             - Keep your answer under 100-120 words.
-
             Context:
             {knowledge_context}
 
