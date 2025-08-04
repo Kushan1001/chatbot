@@ -19,9 +19,7 @@ import html
 
 app = Flask(__name__)
 
-CORS(app, origins= "*" )
-
-app.config['CORS_HEADERS'] = 'Content-Type'
+CORS(app)
 
 memory = MemorySaver()
 thread_id = 1
@@ -179,7 +177,7 @@ def identify_intent(state: State):
             - The user greets you (e.g., "Hello", "Hi").
             2. General:
             - The user asks about your capabilities, who you are, or general questions not requiring data lookup.
-            - Includes administrative questions about the portal itself and categories description.(e.g., "Who developed this portal?", "What can you do?", "What is NVLI").
+            - Includes administrative questions about the portal itself and categories description.(e.g., "Who developed this portal?", "What can you do?", "What is NVLI", "Url of a particular category", "What is a particular category about", "What is folktales about", What is timeless trends category about", "Description of ebooks").
             3. Specialised:
             - The user asks for specific information about Indian culture, history, books, or content that requires searching databases or knowledge content.
             - Example: "Tell me about Mughal architecture."
@@ -242,7 +240,7 @@ def greeting_answer(state:State):
 #------------------------------------------------------------------------------------------------
 def general_query_answer(state: State):
     language = state['language']
-    
+
     knowledge_context = """
         Recognizing the ongoing need to position itself for the digital future, 
         Indian Culture is an initiative by the Ministry of Culture. A platform that 
@@ -396,9 +394,10 @@ def general_query_answer(state: State):
             - Do not repeat prior answers unless explicitly asked.
             - Do not every start you answer with a greeting.
             - Answer capabilites in pointers.
-            - Give the url of category when asked about a prticular category. Urls should be hyperlinks. Hyperlink name should be same as the category name. Do not give them as texts. Font size should be 10px.
+            - Give the url of category when asked about a prticular category. Urls should be hyperlinks. Hyperlink name should be same as the category name. Do not give them as texts.
             - Whenever asked about categories give a brief intro as well.
             - Keep your answer under 100-120 words.
+
             Context:
             {knowledge_context}
 
@@ -670,7 +669,7 @@ def query():
         
     else:
         return jsonify({'answer': 'Cannot understand the intent. Please type a proper query.'}), 404
-#------------------------------------------------------------------------------------
+
 
 @app.post('/summarise_page')
 def summarise_page_endpoint():
@@ -783,7 +782,7 @@ def summarise_page_endpoint():
                 print('api_url', api_url)
             
             elif subcategory_type == 'manufacturing-process':
-                process_type = parsed_url.split('/')[3]
+                process_type = parsed_url.split('/')[3].lower()
                 api_url = f'{base_url}/manufacturing-technique/{process_type}?page={page if page != "" else 0}&&field_state_name_value='
                 print('api_url', api_url)
             
@@ -866,25 +865,31 @@ def summarise_page_endpoint():
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
 
 #------------------------------------------------------------------------------------
-
     # Timeless Trends
     def handle_timeless_trends(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends'
             subcategory_type = parsed_url.split('/')[2].lower()
-            if subcategory_type:
-                api_url = f'{base_url}/{subcategory_type}?page={page if page != "" else 0}'
+            subcategory_type_1 = parsed_url.split('/')[3].lower()
+            print('subcategory_type', subcategory_type)
             
+            if subcategory_type == 'accessories':
+                api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/accessories?page=0&&field_state_name_value='
+                if 'history' in subcategory_type_1.split('-'):
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/a-brief-history-section-accessories?page=0&&field_state_name_value='
 
-            if 'history-of-clothing' in subcategory_type:
-                api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/a-brief-history-section-clothing?page=0&&field_state_name_value='
 
-            if 'history-of-accessories' in subcategory_type:
-                api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/a-brief-history-section-accessories?page=0&&field_state_name_value='
-                print('timelss api called')
+            if subcategory_type == 'clothing':
+                api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/clothing?page=0&&field_state_name_value='
+                if 'history' in subcategory_type_1.split('-'):
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/a-brief-history-section-clothing?page=0&&field_state_name_value='
 
-            if 'history-of-hairstyles' in subcategory_type:
-                api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/a-brief-history-section-hairstyle?page=0&&field_state_name_value='
+
+            if subcategory_type == 'hairstyles':
+                api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/hairstyles?page=0&&field_state_name_value='
+                if 'history' in subcategory_type_1.split('-'):
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/a-brief-history-section-hairstyle?page=0&&field_state_name_value='
+
 
             if 'games' in subcategory_type:
                 api_url = f'{base_url}/games?page={page if page != "" else 0}&&field_state_name_value='
@@ -901,7 +906,7 @@ def summarise_page_endpoint():
             if nid:
                 subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
             else:
-                subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('title').lower().strip()) == subcategory_type.replace('-', ' ').lower()), None)
+                subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('title').lower().strip()) == subcategory_type_1.replace('-', ' ').lower()), None)
 
             if subcategory_data:
                 answer = summarise_content(subcategory_data, language)               
@@ -1277,6 +1282,8 @@ def summarise_page_endpoint():
             base_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-india' 
             category = parsed_url.split('/')[2].lower()
             sub_category = parsed_url.split('/')[3].lower()
+            print('cat', category)
+            print('sub', sub_category)
 
             if category == 'pan-indian-festivals':
                 api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/pan-indian-festivals?page=0&&field_state_name_value='
