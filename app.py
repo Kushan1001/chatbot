@@ -864,6 +864,7 @@ def summarise_page_endpoint():
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+
 #------------------------------------------------------------------------------------
 
     # Timeless Trends
