@@ -800,7 +800,7 @@ def summarise_page_endpoint():
                 api_url = f'{base_url}/textilestatemarker?page=0&&field_state_name_value={state}'
                 print('api_url', api_url)
             
-            elif (subcategory_type.lower()) == 'Textiles-from-museum':
+            elif (subcategory_type.lower()) == 'textiles-from-museum':
                 subcategory_data = []
                 museum = parsed_url.split('/')[3].split('=')[-1]
                 print(museum)
