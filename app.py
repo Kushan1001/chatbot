@@ -1151,7 +1151,7 @@ def summarise_page_endpoint():
 #-----------------------------------------------------------------------------
 
     # Artifacts
-   def handle_artifacts(parsed_url, page, nid, language):
+    def handle_artifacts(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/retrieved-artefacts-of-india'
             sub_category = parsed_url.split('/')[2].lower()
@@ -1192,7 +1192,7 @@ def summarise_page_endpoint():
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
- 
+
 #-----------------------------------------------------------------------------
 
     # Freedom Fighters
