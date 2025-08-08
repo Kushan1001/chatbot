@@ -721,21 +721,38 @@ def summarise_page_endpoint():
 
 
 #------------------------------------------------------------------------------------
-    def handle_snippets(parsed_url, page, nid, language):
+   def handle_snippets(parsed_url, page, nid, language):
         try:
-            api_url = f'https://icvtesting.nvli.in/rest-v1/snippets?page={page if page != "" else 0}&&field_state_name_value='
+            # robustly derive the first path segment (subcategory)
+            path_parts = [seg for seg in urlparse(parsed_url).path.split('/') if seg]
+            sub_category = (path_parts[0].lower() if path_parts else '')
 
-            data = extract_page_content(api_url)
-            if not data or 'results' not in data:
-                return jsonify({"summary": "No data found"}), 404
+            pages_to_try = [page] if page != "" else list(range(0, 5))
+            if page != "" and page not in pages_to_try:
+                pages_to_try.extend(range(0, 6))  
 
-            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+            for p in pages_to_try:
+                api_url = f'https://icvtesting.nvli.in/rest-v1/snippets?page={p}&&field_state_name_value='
+                data = extract_page_content(api_url)
 
-            if subcategory_data:
-                answer = summarise_content(subcategory_data, language)               
-                return jsonify({'summary': answer}), 200
-            else:
-                return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+                if not data or 'results' not in data:
+                    continue
+
+                # If no NID and subcategory is 'snippets' → set to "test"
+                if (not nid or str(nid).strip() == "") and sub_category == 'snippets':
+                    subcategory_data = "This page contains information about various snippets"
+                else:
+                    subcategory_data = next(
+                        (category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)),
+                        None
+                    )
+
+                if subcategory_data:
+                    answer = summarise_content(subcategory_data, language)
+                    return jsonify({'summary': answer}), 200
+
+            return jsonify({'summary': 'No NID found in pages 0-4. Try another NID.'}), 404
+
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
@@ -1132,32 +1149,48 @@ def summarise_page_endpoint():
 #-----------------------------------------------------------------------------
 
     # Artifacts
-    def handle_artifacts(parsed_url, page, nid, language):
+   def handle_artifacts(parsed_url, page, nid, language):
         try:
             base_url = 'https://icvtesting.nvli.in/rest-v1/retrieved-artefacts-of-india'
             sub_category = parsed_url.split('/')[2].lower()
-            
+
+            print(nid)
+
             if sub_category in ['reclaimed-relics', 'artefact-chronicles']:
-                api_url = f'{base_url}/{sub_category}?page={page if page != "" else 0}&&field_state_name_value='
-                print(api_url)
+                pages_to_try = [page] if page != "" else list(range(0, 6))
+                if page != "" and page not in pages_to_try:
+                    pages_to_try.extend(range(0, 5))
 
-                data = extract_page_content(api_url)
-                if not data or 'results' not in data:
-                    return jsonify({"summary": "No data found"}), 404
+                for p in pages_to_try:
+                    api_url = f'{base_url}/{sub_category}?page={p}&&field_state_name_value='
+                    print(api_url)
 
-                subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+                    data = extract_page_content(api_url)
+                    if not data or 'results' not in data:
+                        continue  
 
-                if subcategory_data:
-                    answer = summarise_content(subcategory_data, language)               
-                    return jsonify({'summary': answer}), 200
-                else:
-                    return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+                    # If no NID provided and category is reclaimed-relics → set to "test"
+                    if (not nid or str(nid).strip() == "") and sub_category == 'reclaimed-relics':
+                        subcategory_data = "Over the years since independence, a multitude of artefacts, numbering in the hundreds, if not thousands, have departed from India's shores, often through unknown covert and clandestine channels. Many lack a clear origin, making it challenging to ascertain their exact place of theft, save for a general notion of their regional provenance. In the past decade, concerted efforts by the Indian government, heritage enthusiasts, and NGOs have led to the repatriation of numerous artefacts to India. This section categorises these artefacts based on their respective sources and according to the materials they are crafted from, although some still bear unknown provenance. Page contains info about reclaimed-relics."
+                    else:
+                        subcategory_data = next(
+                            (category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)),
+                            None
+                        )
+
+                    if subcategory_data:
+                        answer = summarise_content(subcategory_data, language)
+                        return jsonify({'summary': answer}), 200
+
+                return jsonify({'summary': 'No NID found in pages 0-4. Try another NID.'}), 404
+
             else:
-                return jsonify({'summary: ' 'The page does not contain information to summarise'}), 404
-            
+                return jsonify({'summary': 'The page does not contain information to summarise'}), 404
+
         except Exception as e:
             print(e)
-            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+ 
 #-----------------------------------------------------------------------------
 
     # Freedom Fighters
