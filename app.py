@@ -722,40 +722,40 @@ def summarise_page_endpoint():
 
 #------------------------------------------------------------------------------------
    def handle_snippets(parsed_url, page, nid, language):
-        try:
-            # robustly derive the first path segment (subcategory)
-            path_parts = [seg for seg in urlparse(parsed_url).path.split('/') if seg]
-            sub_category = (path_parts[0].lower() if path_parts else '')
+    try:
+        # robustly derive the first path segment (subcategory)
+        path_parts = [seg for seg in urlparse(parsed_url).path.split('/') if seg]
+        sub_category = (path_parts[0].lower() if path_parts else '')
 
-            pages_to_try = [page] if page != "" else list(range(0, 5))
-            if page != "" and page not in pages_to_try:
-                pages_to_try.extend(range(0, 6))  
+        pages_to_try = [page] if page != "" else list(range(0, 5))
+        if page != "" and page not in pages_to_try:
+            pages_to_try.extend(range(0, 6))  
 
-            for p in pages_to_try:
-                api_url = f'https://icvtesting.nvli.in/rest-v1/snippets?page={p}&&field_state_name_value='
-                data = extract_page_content(api_url)
+        for p in pages_to_try:
+            api_url = f'https://icvtesting.nvli.in/rest-v1/snippets?page={p}&&field_state_name_value='
+            data = extract_page_content(api_url)
 
-                if not data or 'results' not in data:
-                    continue
+            if not data or 'results' not in data:
+                continue
 
-                # If no NID and subcategory is 'snippets' → set to "test"
-                if (not nid or str(nid).strip() == "") and sub_category == 'snippets':
-                    subcategory_data = "This page contains information about various snippets"
-                else:
-                    subcategory_data = next(
-                        (category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)),
-                        None
-                    )
+            # If no NID and subcategory is 'snippets' → set to "test"
+            if (not nid or str(nid).strip() == "") and sub_category == 'snippets':
+                subcategory_data = "This page contains information about various snippets"
+            else:
+                subcategory_data = next(
+                    (category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)),
+                    None
+                )
 
-                if subcategory_data:
-                    answer = summarise_content(subcategory_data, language)
-                    return jsonify({'summary': answer}), 200
+            if subcategory_data:
+                answer = summarise_content(subcategory_data, language)
+                return jsonify({'summary': answer}), 200
 
-            return jsonify({'summary': 'No NID found in pages 0-4. Try another NID.'}), 404
+        return jsonify({'summary': 'No NID found in pages 0-4. Try another NID.'}), 404
 
-        except Exception as e:
-            print(e)
-            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
+    except Exception as e:
+        print(e)
+        return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
 #------------------------------------------------------------------------------------
 
     def handle_stories(parsed_url, page, nid, language):
