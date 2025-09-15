@@ -1792,14 +1792,22 @@ def summarise_page_endpoint():
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
 
 #-----------------------------------------------------------------------------
-
-    def handle_folktales(parsed_url, page, nid, language):
+def handle_folktales(parsed_url, page, nid, language):
         try:
             sub_category = parsed_url.split('/')[2].lower().strip()
             if sub_category == 'fables':
-                section = parsed_url.split('/')[-1].lower().strip().replace('-', '_')
-                api_url = f'https://icvtesting.nvli.in/rest-v1/folktales-of-india/fables?Fables_type={section}'
-                print('debug', api_url)
+                sub_sub_category = parsed_url.split('/')[3].lower().strip()
+                if sub_sub_category == 'honesty-and-integrity':
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/folktales-of-india/fables?Fables_type=honesty_and_integrity'
+                else:
+                    section = parsed_url.split('/')[-1].lower().strip().replace('-', '_')
+                    if section == 'kindness-and-compassion' or section == 'greed-and-its-consequences' or section == 'appearance-and-reality' or section == 'friendship-and-loyalty' or section == 'perseverance-and-resilience':
+                        subcategory_data == 'No content available on the page. Try another page!'
+                        answer = summarise_content(subcategory_data, language)               
+                        return jsonify({'summary': answer}), 200
+                    else:    
+                        api_url = f'https://icvtesting.nvli.in/rest-v1/folktales-of-india/fables?Fables_type={section}'
+                    print('debug', api_url)
             if sub_category == 'fairytales':
                 api_url = 'https://icvtesting.nvli.in/rest-v1/fairytales-landing-main?page=0&&field_state_name_value='
             if sub_category == 'legends':
@@ -1823,6 +1831,7 @@ def summarise_page_endpoint():
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+
 #-----------------------------------------------------------------------------
 
     def handle_lengendary_figures(parsed_url, page, nid, language):
