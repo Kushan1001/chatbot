@@ -1792,7 +1792,7 @@ def summarise_page_endpoint():
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
 
 #-----------------------------------------------------------------------------
-def handle_folktales(parsed_url, page, nid, language):
+    def handle_folktales(parsed_url, page, nid, language):
         try:
             sub_category = parsed_url.split('/')[2].lower().strip()
             if sub_category == 'fables':
