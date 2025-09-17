@@ -1696,7 +1696,7 @@ def summarise_page_endpoint():
                     "&&field_state_name_value=%20Request%20Method"
                 )
 
-             print('called pan india')
+            print('called pan india')
 
             elif sub_category == 'unconventional-traditions':
                 api_url = (
