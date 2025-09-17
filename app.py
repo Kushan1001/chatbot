@@ -73,7 +73,7 @@ def truncate_context(text_or_list, max_words: int = 700) -> str:
     words = text.split()
     return ' '.join(words[:max_words])
 
-def _extract_words(html_text: str, min_words=50, max_words=100) -> str:
+def _extract_words(html_text: str, min_words=30, max_words= 60) -> str:
     if not html_text:
         return ""
     # strip HTML tags
@@ -88,7 +88,6 @@ def _extract_words(html_text: str, min_words=50, max_words=100) -> str:
 
 
 def _parse_marker_batches(raw):
-    """Parse dict / list / or concatenated JSON string into list of batches with 'results'."""
     if isinstance(raw, dict):
         return [raw]
     if isinstance(raw, list):
@@ -96,7 +95,6 @@ def _parse_marker_batches(raw):
     if not isinstance(raw, str) or not raw.strip():
         return []
 
-    # try straight JSON
     try:
         loaded = json.loads(raw)
         if isinstance(loaded, dict):
@@ -127,7 +125,7 @@ def _parse_marker_batches(raw):
     return batches
 
 def _gather_locations(field_medical_map_marker):
-    def clean_text(html, min_words=20, max_words=50):
+    def clean_text(html, min_words=15, max_words=30):
         text = re.sub(r"<[^>]+>", " ", html or "")
         text = re.sub(r"\s+", " ", text).strip()
         words = text.split()
