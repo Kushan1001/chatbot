@@ -1654,26 +1654,26 @@ def summarise_page_endpoint():
             }
 
             # clean and clip helper
-            def clean_and_truncate_html(html_text, lo=100, hi=150):
-                import re
-                if not html_text:
-                    return ""
-                text = re.sub(r"<[^>]+>", " ", html_text)
-                text = re.sub(r"\s+", " ", text).strip()
-                return text
+            # def clean_and_truncate_html(html_text, lo=100, hi=150):
+            #     import re
+            #     if not html_text:
+            #         return ""
+            #     text = re.sub(r"<[^>]+>", " ", html_text)
+            #     text = re.sub(r"\s+", " ", text).strip()
+            #     return text
                 # words = text.split()
                 # return " ".join(words[:min(len(words), hi)])
 
             # collect all available tabs
             tabs = {
-                k: clean_and_truncate_html(sub_data.get(field))
+                k: sub_data.get(field)
                 for k, field in TAB_FIELDS.items()
                 if sub_data.get(field)
             }
 
 
             if tab:
-                print('here')
+                print('inside here')
                 if tab not in tabs:
                     return jsonify({"summary": f"No content found for tab '{tab}'"}), 404
                 print('tab', tabs[tab])
