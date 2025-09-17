@@ -1608,55 +1608,84 @@ def summarise_page_endpoint():
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
 #-----------------------------------------------------------------------------
-    
     # healing through ages
     def handle_healing_through_the_ages(parsed_url, page, nid, language):
+
         sub_category = parsed_url.split('/')[2].lower().strip()
+        tab = ((request.get_json(silent=True) or {}).get('tab') or '').strip().lower()
+        print('tab', tab)
+        # tab = 'history'
 
-        try: 
-            if sub_category == 'pan-indian-traditions':   
-                api_url = f'https://icvtestingold.nvli.in/rest-v1/healing-through-the-ages/pan-india-traditions?page={page if page != "" else 0}&&field_state_name_value='
-
-                data = extract_page_content(api_url)
-
-                if not data or 'results' not in data:
-                    return jsonify({"summary": "No data found"}), 404
-
-                sub_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
-                history = sub_data['body']
-                philosophy =  sub_data['field_philosophy']
-                practitioners =  sub_data['field_practitioners']
-                literature =  sub_data['field_literature']
-                surgical_equipment =  sub_data['field_surgical_equipment']
-
-                subcategory_data = f'''history: {history}.\n Philosophy: {philosophy}.\n Practitioners: {practitioners}
-                                        Literature: {literature}.\n Surgical Equipment: {surgical_equipment}   
-                                    '''
-
-                if subcategory_data:
-                    answer = summarise_content(subcategory_data, language)               
-                    return jsonify({'summary': answer}), 200
-                else:
-                    return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
-
-            if sub_category == 'unconventional-traditions':
-                api_url = f'https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/unconventional-traditions?page=0&&field_state_name_value='
+        try:
+            if sub_category == 'pan-indian-traditions':
+                api_url = (
+                    "https://icvtestingold.nvli.in/rest-v1/healing-through-the-ages/"
+                    f"pan-india-traditions?page={page if page != '' else 0}"
+                    "&field_state_name_value=%20Request%20Method"
+                )
+            elif sub_category == 'unconventional-traditions':
+                api_url = (
+                    "https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/"
+                    f"unconventional-traditions?page={page if page != '' else 0}"
+                    "&field_state_name_value="
+                )
+            else:
+                return jsonify({"summary": "Unknown subcategory"}), 400
 
             data = extract_page_content(api_url)
             if not data or 'results' not in data:
                 return jsonify({"summary": "No data found"}), 404
 
-            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
-            
-
-            if subcategory_data:
-                answer = summarise_content(subcategory_data, language)               
-                return jsonify({'summary': answer}), 200
-            else:
+            sub_data = next(
+                (cd for cd in data.get('results', []) if str(cd.get('nid')) == str(nid)),
+                {}
+            )
+            if not sub_data:
                 return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+
+            # --- tab mapping lives here ---
+            TAB_FIELDS = {
+                "history": "body",
+                "philosophy": "field_philosophy",
+                "practitioners": "field_practitioners",
+                "literature": "field_literature",
+                "surgical_equipment": "field_surgical_equipment",
+                "medical_map": "field_medical_map_marker"
+            }
+
+            # clean and clip helper
+            def clean_and_truncate_html(html_text, lo=100, hi=150):
+                import re
+                if not html_text:
+                    return ""
+                text = re.sub(r"<[^>]+>", " ", html_text)
+                text = re.sub(r"\s+", " ", text).strip()
+                return text
+                # words = text.split()
+                # return " ".join(words[:min(len(words), hi)])
+
+            # collect all available tabs
+            tabs = {
+                k: clean_and_truncate_html(sub_data.get(field))
+                for k, field in TAB_FIELDS.items()
+                if sub_data.get(field)
+            }
+
+
+            if tab:
+                print('here')
+                if tab not in tabs:
+                    return jsonify({"summary": f"No content found for tab '{tab}'"}), 404
+                print('tab', tabs[tab])
+                return jsonify({"tab": tab, "summary": summarise_content(tabs[tab], language)}), 200
+
+            # otherwise return all available tabs
+            return jsonify({"summary": summarise_content(tabs, language)}), 200
+
         except Exception as e:
             print(e)
-            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+            return jsonify({'summary': 'Failed to process the page. Try again!'}), 500
+
 #-----------------------------------------------------------------------------
 
     # classical dances
