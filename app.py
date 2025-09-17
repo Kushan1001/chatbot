@@ -1614,6 +1614,8 @@ def summarise_page_endpoint():
         sub_category = parsed_url.split('/')[2].lower().strip()
         tab = ((request.get_json(silent=True) or {}).get('tab') or '').strip().lower()
 
+        print('step 1 - tab', tab)
+
         try:
             # --- Build API URL ---
             if sub_category == 'pan-indian-traditions':
@@ -1622,6 +1624,7 @@ def summarise_page_endpoint():
                     f"pan-india-traditions?page={page if page else 0}"
                     "&field_state_name_value=%20Request%20Method"
                 )
+                print('api called pand india')
             elif sub_category == 'unconventional-traditions':
                 api_url = (
                     "https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/"
@@ -1634,10 +1637,14 @@ def summarise_page_endpoint():
             data = extract_page_content(api_url)
             if not data or 'results' not in data:
                 return jsonify({"summary": "No data found"}), 404
+            
+            print('page content extracted')
 
             sub_data = next((cd for cd in data['results'] if str(cd.get('nid')) == str(nid)), None)
             if not sub_data:
                 return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+
+            print('sub data extracted')
 
             # --- Map tabs to fields ---
             TAB_FIELDS = {
@@ -1656,19 +1663,26 @@ def summarise_page_endpoint():
                 text = re.sub(r"\s+", " ", text).strip()
                 words = text.split()
                 return " ".join(words[:max_words])
+            
+            print('strip and clip done')
 
             tabs = {k: strip_and_clip(sub_data.get(v)) for k, v in TAB_FIELDS.items() if sub_data.get(v)}
+
+            print('tabs done')
 
             if tab:
                 if tab not in tabs:
                     return jsonify({"summary": f"No content for tab '{tab}'"}), 404
                 return jsonify({"tab": tab, "summary": summarise_content(tabs[tab], language)}), 200
 
-            return jsonify({"summary": tabs}), 200
+            print('everything done')
+
+            return jsonify({"summary": summarise_content(tabs, language)}), 200
 
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to process the page. Try again!'}), 500
+
 #-----------------------------------------------------------------------------
 
     # classical dances
