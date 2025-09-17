@@ -73,6 +73,7 @@ def truncate_context(text_or_list, max_words: int = 700) -> str:
     words = text.split()
     return ' '.join(words[:max_words])
 
+
 def translate_to_hindi(text: str) -> str:
     try:
         translation_prompt = PromptTemplate.from_template(
@@ -1614,21 +1615,19 @@ def summarise_page_endpoint():
 
         try: 
             if sub_category == 'pan-indian-traditions':   
-                api_url = f'https://icvtestingold.nvli.in/rest-v1/healing-through-the-ages/pan-india-traditions?page={page if page != "" else 0}&&field_state_name_value=%20Request%20Method'
+                api_url = f'https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/pan-india-traditions?page={page if page != "" else 0}&&field_state_name_value='
 
                 data = extract_page_content(api_url)
 
                 if not data or 'results' not in data:
                     return jsonify({"summary": "No data found"}), 404
 
-                sub_data = next((cd for cd in data.get('results', []) if str(cd.get('nid')) == str(nid)), {})  # {} if not found
-
-
-                history            = clean_and_truncate_html(sub_data.get('body')) or ""                    
-                philosophy         = clean_and_truncate_html(sub_data.get('field_philosophy')) or ""        
-                practitioners      = clean_and_truncate_html(sub_data.get('field_practitioners')) or ""     
-                literature         = clean_and_truncate_html(sub_data.get('field_literature')) or ""        
-                surgical_equipment = clean_and_truncate_html(sub_data.get('field_surgical_equipment')) or ""#
+                sub_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+                history = sub_data['body']
+                philosophy =  sub_data['field_philosophy']
+                practitioners =  sub_data['field_practitioners']
+                literature =  sub_data['field_literature']
+                surgical_equipment =  sub_data['field_surgical_equipment']
 
                 subcategory_data = f'''history: {history}.\n Philosophy: {philosophy}.\n Practitioners: {practitioners}
                                         Literature: {literature}.\n Surgical Equipment: {surgical_equipment}   
@@ -1658,7 +1657,7 @@ def summarise_page_endpoint():
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
-    #-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
     # classical dances
     def handle_classical_dances(parsed_url, page, nid, language):
