@@ -1610,78 +1610,112 @@ def summarise_page_endpoint():
 #-----------------------------------------------------------------------------
     # healing through ages
     def handle_healing_through_the_ages(parsed_url, page, nid, language):
-   
+
+        nid_ = nid
         sub_category = parsed_url.split('/')[2].lower().strip()
         tab = ((request.get_json(silent=True) or {}).get('tab') or '').strip().lower()
 
         print('step 1 - tab', tab)
 
-        try:
-            # --- Build API URL ---
-            if sub_category == 'pan-indian-traditions':
-                api_url = (
-                    "https://icvtestingold.nvli.in/rest-v1/healing-through-the-ages/"
-                    f"pan-india-traditions?page={page if page else 0}"
-                    "&field_state_name_value=%20Request%20Method"
-                )
-                print('api called pand india')
-            elif sub_category == 'unconventional-traditions':
-                api_url = (
-                    "https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/"
-                    f"unconventional-traditions?page={page if page else 0}"
-                    "&field_state_name_value="
-                )
-            else:
-                return jsonify({"summary": "Unknown subcategory"}), 400
+        # --- Build API URL ---
+        if sub_category == 'pan-indian-traditions':
+
+            if nid_ ==  3000998:
+                data = {'history': "ayurveda, one of the world's oldest systems of healing, is believed to be more than 5000 years old. It is rooted in a holistic understanding of health and wellness. The term 'Ayurveda' comes from the Sanskrit words Ayur, meaning life, and Veda, meaning knowledge or science. This ancient system aims to prevent and treat various ailments by harmonizing the body with nature and elements of the universe.The Ayurvedic classics describe eight well developed clinical branches of Ayurveda, these include : Kaya Chikitsa (Medicine), Shalya Tantra (Surgery), Shalakya Tantra (ENT and Ophthalmology), Kaumarbhritya (Paediatrics and Obstetrics), Agad Tantra (Toxicology), Bhut Vidya (Psychiatry), Rasayan  (Rejuvenation therapy and geriatrics), and Vajikaran (Sexology - Including Aphrodisiac for better progeny).The history or origin of Ayurveda is associated with numerous myths and legends. It is believed to have a divine origin, gifted to humanity by the gods to ensure health and longevity. The most prominent figure associated with Ayurveda’s creation is Lord Brahma, the creator god in Hindu mythology. According to various traditions, Brahma imparted this ancient knowledge to sages, who then passed it down to humanity through oral teachings and written texts.As per another version, Dhanvantari is believed to be the god of medicine and healing. He is said to have emerged from the churning of the ocean (Samudra Manthan), carrying a bowl of nectar and a healing staff. Dhanvantari is revered as the divine physician and is often depicted as a central figure in Ayurvedic practice, particularly in the field of surgery. In some versions of the myth, Dhanvantari is also considered a king of Kashi (Varanasi), blessed by Lord Vishnu with the gift of medical knowledge.",
+                                'philosophy': "Ayurveda emphasises the harmonious balance between body, mind, spirit, and social well-being. Central to Ayurvedic philosophy is the belief in the interconnectedness of all elements within the universe, which includes space, air, fire, water, and earth. The five great elements or the panchmahabhuta, form the human body and are present in different proportions. Together they form unique physical and psychological characteristics of an individual. This unique constitution is referred to as prakruti or prakriti. Every individual is believed to be formed of two components i.e. Prakriti, which constitutes the body and Purusa, which is the soul.  While Purusa is indivisible and unchangeable, Prakriti evolves and creates from varying combinations. Prakruti is determined by the balance of three fundamental energies or doshas i.e. vata (space and air), pitta (fire and water), and kapha (water and earth). Each dosha embodies distinct qualities that govern bodily functions and personality traits. While the human body comprises all three, one is naturally more prominent than the others. Ayurveda has further classified the human body into Saptadhatus (seven tissues) which are composed of the five elements. It includes Rasa (tissue fluids), Meda (fat and connective tissue), Rakta (blood), Asthi (bones), Majja (marrow), Mamsa (muscle), and Shukra (semen) and three Malas (waste products) of the body, viz. Purisha (faeces), Mutra (urine) and Sweda (sweat). They are interconnected with the doshas.Maintaining balance between the doshas is key to health. Therefore, everyone needs to adhere to daily and seasonal regimens that align with one’s prakruti. Throughout life the overall composition remains the same, but it gets affected by various internal, external and environmental factors. Therefore, everyone is responsible for their choices about diet, exercise, and relationships, which can create physical, emotional, or spiritual imbalances. Ayurveda places great emphasis on the prevention of disease rather than mere treatment. A trained Ayurvedic practitioner conducts a thorough assessment, observing physical traits, behavioural patterns, and pulse characteristics to determine an individual's prakriti and dosha. This personalised approach highlights the philosophy's commitment to understanding the individual’s unique constitution, thus enabling tailored health recommendations.The healing patterns associated with this ancient system reflect a dynamic interplay of internal and external factors. Its principles continue to resonate in contemporary wellness practices, offering a timeless framework for achieving balance and well-being in an increasingly complex world. Over the millennia, Ayurveda has not only persisted as a medical tradition but has also influenced many aspects of cultural and spiritual life in India and beyond. Its holistic approach to health, which seeks to maintain balance between the individual and nature, continues to be relevant in contemporary wellness practices. Ayurveda remains a testament to the ancient wisdom that sought to integrate healing with a broader understanding of the universe, where physical health, mental clarity, and spiritual harmony are seen as inseparable.Over centuries, these texts have been translated, annotated, and studied, influencing not only traditional Ayurvedic practices but also modern healthcare in many parts of the world. Today, they continue to be central to Ayurvedic education and practice, preserving the wisdom of ancient India and adapting it to contemporary needs.",
+                                'practitioners': "The ancient wisdom and practices of Ayurveda continue to thrive today through a rich tapestry of institutions, practitioners, and pharmaceutical enterprises. These contemporary expressions are not mere echoes of the past—they actively sustain and reinterpret ancient principles to meet our daily needs. Let's explore some aspects of Ayurveda's enduring legacy across India through this interactive map. Each pin marks a site where this healing tradition has left an indelible mark and expanded the traditional medical paradigm. Together, these sites form a living archive of a healing tradition that has never ceased to innovate and adapt while honouring its deep historical roots. FOllowing are the practitioners: Sage Atreya, Charaka, Sushruta, Agnievesha, Sage Bharadwaj, Sage Atreya, Lord Dhanvantari, Vagbhata, Madhava - Kara, Chakrapani Datta, Bhavamishra",
+                                'literature': "Over the centuries Ayurveda has played a crucial role in shaping medical thought and practice. The system's comprehensive approach to health, focusing on the balance of body, mind, and spirit, is documented in a body of literature that dates from approximately 400 BCE to 200 CE. The foundational theories and practices of Ayurveda can be traced to even earlier times, with its roots embedded in ancient Indian philosophical and spiritual traditions.The historical significance of Ayurvedic literature lies not only in its early contributions to the field of medicine but also in its holistic and integrative approach to understanding the human body. As research continues to reveal the depth and relevance of Ayurvedic thought, it is important that these contributions be more widely acknowledged and incorporated into the broader discourse of medical science.These texts are considered the pillars upon which Ayurveda rests. They provide detailed insights into its principles, diagnoses, treatments, and lifestyle practices. Together, these texts codify the vast knowledge of Ayurveda into systematic frameworks for health and healing. They represent the collective wisdom of sages and physicians in ancient India and continue to influence the practice of Ayurvedic medicine to this day. They serve not only as medical guides but also embody the philosophical, cultural, and scientific insights of the past.The foundational texts that form the core of Ayurvedic knowledge are collectively known as the Brihat Trayi (or The Three Great Texts). These three texts are considered the pillars upon which Ayurveda rests, providing detailed insights into its principles, diagnoses, treatments, and lifestyle practices. They are:Charaka Samhita, Sushruta Samhita,Ashtanga Hridaya.The Brihat Trayi represents the pinnacle of Ayurvedic scholarship and are revered by practitioners and scholars of Ayurveda worldwide. Together, these texts form a unified system that addresses all aspects of human health, from the prevention of disease to the treatment of ailments, including both medical and surgical knowledge. Their emphasis on natural remedies, ethical conduct, and holistic health has influenced not only Indian medicine but also global health practices. ",
+                                'surgical_equipment': 'The Sushruta Samhita stands as one of historys most groundbreaking medical treatises. It is attributed to the legendary physician Sushruta and provides an unparalleled glimpse into the advanced surgical knowledge of ancient India. It not only details complex procedures, including reconstructive surgery, and cataract removal, but also meticulously describes over hundreds of surgical instruments—many of which resemble modern scalpels, forceps, and catheters.It can be said that the precision of Sushrutas instruments, crafted from materials such as iron and copper, laid the groundwork for the sophisticated surgical tools used today. Some historians and medical experts even consider his work a precursor to modern techniques, as his emphasis on cleanliness, wound care, and surgical ethics aligns closely with contemporary medical practices. Today, as medicine continues to evolve, the principles outlined in this ancient text remain relevant. Let us explore some of the instruments mentioned in Sushruta Samhita. Their knowledge bridges the past and present and also serves as a testament to the scientific spirit of early Indian medicine.The medical instruments were meticulously crafted from metals such as iron, copper, and gold, as well as non-metallic materials sourced from animals and plants. These tools, characterised by their sharp edges and firm grip, were tailored for specific tasks such as incisions (bhedana), excision(chedana), and suturing(seevana) among others.In ancient India, surgical tools were bifurcated into: Yantras (blunt instruments) and Shastras (sharp instruments), each with its own unique purpose. Yantras: Yantras (Blunt Instruments) are shaped like birds and animals, such as lions, tigers, deer, and sparrows, among others. There are 101 yantra instruments, which are further subdivided into six subgroups. Each yantra serves a distinct medical purpose. Shastras: The sharp instruments described in the Sushruta Samhita are referred to as shastras. There are twenty such instruments: the Mandalagra, Karapatra, Vriddhipatra, Nakha, Mudrika, Utpalapatra, Ardhadhara, Suchi, Kushapatra, Aatimukha, Shararimukha, Antarmukha, Trikurchaka, Kutharika, Vrihimukha, Ara, Vetasapatra, Vadisha, Dantashanku, and Eshani.  Each of these instruments had an important role in the practice of ancient Indian surgery. The Sushruta Samhita describes 20 different sharp instruments, each serving a specific surgical function.',
+                                'medical_map': 'The ancient wisdom and practices of Ayurveda continue to thrive today through a rich tapestry of institutions, practitioners, and pharmaceutical enterprises. These contemporary expressions are not mere echoes of the past—they actively sustain and reinterpret ancient principles to meet our daily needs. Enterprise: Zandu, Dabur, Shree Dhootapapeshwar Limited, Baidyanath, K.P. Namboodiris Ayurvedics, Himalaya Wellness. Institution: Government Ayurvedic Medical College Mysore, Arya Vaidya Sala, Kottakkal, Dayanand Ayurvedic College Jalandhar, Lalit Hari State Ayurveda College, Pilibhit, J.B. Roy State Ayurvedic Medical College. Legacy: Ashtavaidya Tradition.'  
+                            }
+                
+                if tab:
+                    return jsonify({"tab": tab, "summary": summarise_content(data[tab], language)}), 200
+                else:
+                    return jsonify({"summary": summarise_content(data, language)}), 200
+
+            if nid == 3002086:
+                data = {
+                    'history': "Unani Tibb is one of the world's oldest healing practices, and it is believed to have roots that span over a thousand years. It represents a complex synthesis of various medical thoughts. The term Unani is derived from the Arabic word Yunan, which refers to the Ionian region i.e. parts of ancient Greece - while Tibb translates to medicine. Unani Tibb represents a complex synthesis of knowledge of healing which was integrated into the cultural fabric of many regions around the world because of its reliable and effective natural remedies. Unani Tibb's rich and long history makes it a deeply researched and tested healing practice which promotes well-being and harmony in the body. It is believed to have its roots in ancient Greek medical knowledge. Its theoretical framework is based on the teachings of Greek physicians & scholars such as Hippocrates (460-370 BC) and Galen (129-200 CE). Between the 8th and 13th centuries, Greek medical knowledge was transmitted and formalised in the Arab and Persian world. Under the patronage of Abbasid caliphs, it was further refined through observation, translation of existing Greek literature and experimentation by scholars. This led to the foundation of Bayt al-Hikma (The House of Wisdom), which became a major intellectual and academic center in Baghdad during the Abbasid Caliphate. It functioned as both a library, a center for scholarly activities and translation from Greek, Persian, and other languages into Arabic. Due to the connection between the two regions, this healing tradition is also known as Greco- Arab medicine. Physicians like Ibn Sina, known in the West as Avicenna, contributed to this tradition through his most celebrated work called Al-Qānūn fil-ṭibb or Canon of Medicine. Another eminent scholar, Al-Razi, known in the West as Rhazes, wrote Al-Hawi fi al-Tibb also known as ‘The Comprehensive book’, and many others were written which assisted in the dissemination of Unani Tibb. These Arab scholars helped to synthesize the Hippocratic and Galenic knowledge within the epistemological frameworks of Arabic philosophy.In the 8th century, Unani Tibb was introduced to India with the arrival of Arab scholars and hakeems (Unani practitioners). The tradition gained its strong foundation under the patronage of the Delhi Sultanate and the Bahmani Kingdom in Southern India. One of the first works of Greco-Arab medicine in India was a 13th-century Persian translation by Abu Bakir bin Ali bin Usman of Alberuni’s Kitab al-Saydana fi'l-Tibb (The Book of Pharmacy in Medicine). This translation was patronised by Sultan Iltutmish of the Delhi Sultanate (1211-1236).The establishment of the Mughal empire during the 16th century marked another major phase in the development of Unani Medicine in India. Rulers like Babur and Humayun brought tabibs (physicians) from their native land. Medical learning, practice and literature flourished during the reign of subsequent rulers both in North and South India. During this time, Unani Tibb was widely practised in India alongside other traditional systems of medicine such as Ayurveda and Siddha. The medical pluralism of the time allowed for a dynamic exchange of ideas and methods.In the 18th century, with the decline of the Mughal Empire and the establishment of British colonial rule, there was a shift from the traditional medical system to Western medicine, which was promoted by the British colonists. However, with the disintegration of the Mughal empire, princely states like Rampur, Bhopal, Hyderabad and Lucknow became important centres for learning and practice of Unani medical tradition. Notable families like Sharif and Majeedi from Delhi and Azizi from Lucknow helped to preserve and promote it throughout the 19th and 20th centuries. In present times, Unani Tibb continues to thrive under the ministry of AYUSH (Ayurveda, Yoga & Naturopathy, Unani, Siddha, and Homoeopathy).",
+                    'literature': "Unani Tibb, rooted in the classical philosophies of ancient Greece and Rome, was later enriched by Persian, Arab, and South Asian scholars. It consists of a sophisticated body of literature. The composition of Unani texts over time reflects the cumulative efforts of generations of physicians, philosophers, and translators who preserved, critiqued, and expanded upon age-old medical wisdom. The intellectual foundations of Unani Tibb were laid in the classical era by Greek physicians, particularly Hippocrates (c. 460–370 BCE), who is often hailed as the 'Father of Medicine.' His writings, collectively known as the Hippocratic Corpus, introduced critical ideas such as the humoral theory of health and disease, the importance of clinical observation, and ethical conduct in medicine. This work emphasised the balance of the four humors—blood, phlegm, yellow bile, and black bile, a concept that remained central to Unani philosophy. Later, Galen of Pergamon (129–c. 200 CE) systematised and expanded Hippocratic principles by producing a vast medical corpus on anatomy, physiology, pathology, pharmacology, and philosophy. His texts, originally written in Greek and were later translated into Latin and Arabic. These works became foundational references in both Islamic and European medical education for centuries.The rise of Islamic civilization from the 7th century onward marked a transformative phase in the development of Unani medicine. In centers of learning such as Baghdad, Neyshabur, Cairo, a major translation movement flourished under the patronage of the Abbasid caliphs. Greek medical texts were translated into Arabic by scholars such as Hunayn ibn Ishaq and Thabit ibn Qurra, ensuring their survival and integration into the region’s intellectual tradition. These Arab and Persian scholars did not merely translate the classical literature, but they critically engaged with it, producing original medical works which refined earlier theories through empirical observation and philosophical reasoning. Among the most influential figures of this era was Abu Bakr Muhammad ibn Zakariya al-Razi, (865–925 CE) also referred to as Rhazes in the West, who compiled a monumental medical encyclopedia, Al-Hawi (The Comprehensive Book).  His collection of work primarily focused on clinical cases, therapies, and pharmacological data.Another pioneer in this domain was Abu Ali al-Husayn ibn Sina (980–1037 CE), known in the West as Avicenna. His magnum opus, Al-Qanun fi al-Tibb (The Canon of Medicine), synthesized Galenic, Hippocratic, and Arabic medical knowledge into a collective and systematic medical philosophy. The Canon was organised into five books: Book I-General principles, Book II-Materia medica; Book III-Diseases of the individual organs; Book IV-General diseases; Book V-Formula for remedies. It remained the authoritative text in the Arab world until the early modern period.The literary output of Unani scholars during the Abbasid Caliphate period (8th -13th century) was vast and varied in form. Medical texts were composed not only as encyclopedias but also as abridgements, enabling easier transmission of complex ideas. Commentaries were frequently written on classical texts, particularly those of Hippocrates and Galen, to clarify and expand upon their meanings. A unique feature of the Unani tradition was the use of poetry, where complex medical knowledge was expressed in verse. Scholars also wrote monographs— focused treatises on specific diseases, organs, or therapies—and therapeutic manuals that detailed diagnostic techniques, clinical signs, and appropriate regimens of treatment.Pharmacological literature, another key genre in Unani Tibb, developed extensively by this time. Works like Kitab al-Jami fi al-Adwiya al-Mufrada (The Book of Simple Drugs) by Ibn al-Baytar catalogued hundreds of natural substances, including herbs, minerals, and animal products, along with their therapeutic properties and uses. These pharmacopoeias, often organised alphabetically or thematically, provided the foundation for the Unani system of compound drug preparation and were central to the practice of hakims (Unani physicians). Texts on dietetics and regimen were also widely produced, emphasising the importance of food, environment, and lifestyle in maintaining health and preventing disease.Manuscripts of these texts were often exquisitely produced, written in elegant scripts, bound in decorated leather covers illustrated with botanical drawings or anatomical diagrams. These rare works were well preserved in libraries, royal courts, and madrasas (Islamic educational institutions).The enduring appeal of Unani medical literature lies in its humanistic approach to medicine. It integrates philosophy, natural science, and empirical observation, while emphasising balance, temperament (mizaj), and individualised care. Today, these texts remain not only as historical artifacts but as living documents in traditional systems of healing practiced across South Asia and the Middle East. Several important repositories in Indian institutions preserve the rich legacy of Unani medical manuscripts. The Rampur Raza Library in Rampur, Uttar Pradesh, holds one of the largest collections of Persian medical texts in the country, including rare and early works. The Khuda Bakhsh Oriental Public Library in Patna, Bihar, is equally renowned for its extensive holdings in Arabic and Persian Unani literature, making it a vital resource for historical research. In Delhi, the Jamia Hamdard Library houses numerous rare, printed editions and manuscript texts that continue to support Unani medical education and scholarship.Meanwhile, the Darul Shifa College (16th century) and  Nizamia Tibbi College in Hyderabad, are believed to be the oldest Unani medical institutions in South India. They serve as an important repository for works originating from the Deccan region and reflect the historical depth of Unani practice in southern India. Manuscripts from the Mughal era are also available in State Central Library, Hyderabad. These institutions not only preserve the literary legacy of Unani medicine but also stand as enduring symbols of its evolution.",
+                    'practitioners': "The rich legacy of Unani medicine has been carefully preserved and transmitted through generations by dedicated practitioners. These esteemed healers not only compiled their vast knowledge into influential texts but also guided and trained others in medicine or the art of healing. Few of them are: Ibn Sina (Avicenna), Abu Bakr al-Razi,Hakim Mohammad Sharif Khan, Hakim Ajmal Khan, Hakim Hashim Alavi Shirazi, Hakim Akbar Arzani, Hakim Ali Gilani, Muhammad ibn Yusuf al Harawi, Hakim Abdul Aziz, Hakim Abdul Hameed, Hakim Mohammad Kabiruddin, Hakim Syed Khaleefathullah",
+                    'medical_map': "Institution: Dar- ul- shifa, Hyderabad, Takmeel-ut-Tibb, Lucknow, Ajmal Khan Tibbiya College - Aligarh Muslim University (AMU) Aligarh, Ayurvedic and Unani Tibbia College Delhi, Government Nizamia Tibbia College and Hospital HyderabadState Unani Medical College and Hospital Prayagraj, Dar- ul- shifa Hyderabad, Takmeel-ut-Tibb Lucknow. Enterprises: Hamdard Laboratories Delhi, Khandan-e-Sharifi (Sharifi Family of Delhi), Baqai Dawakhana Pvt. Ltd. Delhi, Tayyebi Dawakhana Indore, Dar-ul-Shifa Mandu"
+                }
+
+                if tab:
+                    return jsonify({"tab": tab, "summary": summarise_content(data[tab], language)}), 200
+                else:
+                    return jsonify({"summary": summarise_content(data, language)}), 200
+                
+        elif sub_category == 'unconventional-traditions':
+            api_url = (
+                "https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/"
+                f"unconventional-traditions?page={page if page else 0}"
+                "&field_state_name_value="
+            )
 
             data = extract_page_content(api_url)
             if not data or 'results' not in data:
                 return jsonify({"summary": "No data found"}), 404
             
-            print('page content extracted')
-
-            sub_data = next((cd for cd in data['results'] if str(cd.get('nid')) == str(nid)), None)
-            if not sub_data:
+            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+            
+            # print(subcategory_data)
+            if subcategory_data:
+                answer = summarise_content(remove_src_attributes(subcategory_data['body']), language)               
+                return jsonify({'summary': answer}), 200
+            else:
                 return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+        
+        else:
+            return jsonify({"summary": "Unknown subcategory"}), 400
 
-            print('sub data extracted')
+            
+            # print('page content extracted')
+
+            # sub_data = next((cd for cd in data['results'] if str(cd.get('nid')) == str(nid)), None)
+            # if not sub_data:
+            #     return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+
+            # print('sub data extracted')
 
             # --- Map tabs to fields ---
-            TAB_FIELDS = {
-                "history": "body",
-                "philosophy": "field_philosophy",
-                "practitioners": "field_practitioners",
-                "literature": "field_literature",
-                "surgical_equipment": "field_surgical_equipment",
-            }
+            # TAB_FIELDS = {
+            #     "history": "body",
+            #     "philosophy": "field_philosophy",
+            #     "practitioners": "field_practitioners",
+            #     "literature": "field_literature",
+            #     "surgical_equipment": "field_surgical_equipment",
+            #     'medical_map'
+            # }
 
             # --- Helper: strip HTML and clip ---
-            def strip_and_clip(text, max_words=150):
-                if not text:
-                    return ""
-                text = re.sub(r"<[^>]+>", " ", text)
-                text = re.sub(r"\s+", " ", text).strip()
-                words = text.split()
-                return " ".join(words[:max_words])
+        #     def strip_and_clip(text, max_words=150):
+        #         if not text:
+        #             return ""
+        #         text = re.sub(r"<[^>]+>", " ", text)
+        #         text = re.sub(r"\s+", " ", text).strip()
+        #         words = text.split()
+        #         return " ".join(words[:max_words])
             
-            print('strip and clip done')
+        #     print('strip and clip done')
 
-            tabs = {k: strip_and_clip(sub_data.get(v)) for k, v in TAB_FIELDS.items() if sub_data.get(v)}
+        #     tabs = {k: strip_and_clip(sub_data.get(v)) for k, v in TAB_FIELDS.items() if sub_data.get(v)}
 
-            print('tabs done')
+        #     print('tabs done')
 
-            if tab:
-                if tab not in tabs:
-                    return jsonify({"summary": f"No content for tab '{tab}'"}), 404
-                return jsonify({"tab": tab, "summary": summarise_content(tabs[tab], language)}), 200
+        #     if tab:
+        #         if tab not in tabs:
+        #             return jsonify({"summary": f"No content for tab '{tab}'"}), 404
+        #         return jsonify({"tab": tab, "summary": summarise_content(tabs[tab], language)}), 200
 
-            print('everything done')
+        #     print('everything done')
 
-            return jsonify({"summary": summarise_content(tabs, language)}), 200
+        #     return jsonify({"summary": summarise_content(tabs, language)}), 200
 
-        except Exception as e:
-            print(e)
-            return jsonify({'summary': 'Failed to process the page. Try again!'}), 500
+        # except Exception as e:
+        #     print(e)
+        #     return jsonify({'summary': 'Failed to process the page. Try again!'}), 500
 
 #-----------------------------------------------------------------------------
 
