@@ -73,6 +73,79 @@ def truncate_context(text_or_list, max_words: int = 700) -> str:
     words = text.split()
     return ' '.join(words[:max_words])
 
+def _extract_words(html_text: str, min_words=50, max_words=100) -> str:
+    if not html_text:
+        return ""
+    # strip HTML tags
+    text = re.sub(r"<[^>]+>", " ", html_text)
+    text = re.sub(r"\s+", " ", text).strip()
+
+    words = text.split()
+    n = min(len(words), max_words)
+    if n < min_words:
+        return " ".join(words)
+    return " ".join(words[:n])
+
+
+def _parse_marker_batches(raw):
+    """Parse dict / list / or concatenated JSON string into list of batches with 'results'."""
+    if isinstance(raw, dict):
+        return [raw]
+    if isinstance(raw, list):
+        return [el for el in raw if isinstance(el, dict)]
+    if not isinstance(raw, str) or not raw.strip():
+        return []
+
+    # try straight JSON
+    try:
+        loaded = json.loads(raw)
+        if isinstance(loaded, dict):
+            return [loaded]
+        if isinstance(loaded, list):
+            return [b for b in loaded if isinstance(b, dict)]
+    except Exception:
+        pass
+
+    # fallback: split concatenated objects {..}{..}{..}
+    out, depth, start = [], 0, None
+    for i, ch in enumerate(raw):
+        if ch == "{":
+            if depth == 0:
+                start = i
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0 and start is not None:
+                out.append(raw[start:i+1])
+                start = None
+    batches = []
+    for piece in out:
+        try:
+            batches.append(json.loads(piece))
+        except Exception:
+            pass
+    return batches
+
+def _gather_locations(field_medical_map_marker):
+    def clean_text(html, min_words=20, max_words=50):
+        text = re.sub(r"<[^>]+>", " ", html or "")
+        text = re.sub(r"\s+", " ", text).strip()
+        words = text.split()
+        n = min(len(words), max_words)
+        return " ".join(words[:n])
+
+    locations = []
+    for batch in _parse_marker_batches(field_medical_map_marker):
+        for item in batch.get("results", []):
+            title = (item.get("title") or "").strip()
+            body = item.get("body") or ""
+            desc = clean_text(f"{title}. {body}")
+            locations.append({
+                "title": title,
+                "type": item.get("field_choose_types") or "",
+                "description": desc   # clipped to 50–100 words
+            })
+    return locations
 
 def translate_to_hindi(text: str) -> str:
     try:
@@ -1613,50 +1686,54 @@ def summarise_page_endpoint():
     def handle_healing_through_the_ages(parsed_url, page, nid, language):
         sub_category = parsed_url.split('/')[2].lower().strip()
 
-        try: 
-            if sub_category == 'pan-indian-traditions':   
-                api_url = f'https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/pan-india-traditions?page={page if page != "" else 0}&&field_state_name_value='
+        try:
+            if sub_category == 'pan-indian-traditions':
+                api_url = (
+                    "https://icvtestingold.nvli.in/rest-v1/healing-through-the-ages/"
+                    f"pan-india-traditions?page={page if page != '' else 0}"
+                    "&&field_state_name_value=%20Request%20Method"
+                )
 
-                data = extract_page_content(api_url)
-
-                if not data or 'results' not in data:
-                    return jsonify({"summary": "No data found"}), 404
-
-                sub_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
-                history = sub_data['body']
-                philosophy =  sub_data['field_philosophy']
-                practitioners =  sub_data['field_practitioners']
-                literature =  sub_data['field_literature']
-                surgical_equipment =  sub_data['field_surgical_equipment']
-
-                subcategory_data = f'''history: {history}.\n Philosophy: {philosophy}.\n Practitioners: {practitioners}
-                                        Literature: {literature}.\n Surgical Equipment: {surgical_equipment}   
-                                    '''
-
-                if subcategory_data:
-                    answer = summarise_content(subcategory_data, language)               
-                    return jsonify({'summary': answer}), 200
-                else:
-                    return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
-
-            if sub_category == 'unconventional-traditions':
-                api_url = f'https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/unconventional-traditions?page=0&&field_state_name_value='
+            elif sub_category == 'unconventional-traditions':
+                api_url = (
+                    "https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/"
+                    f"unconventional-traditions?page={page if page != '' else 0}"
+                    "&&field_state_name_value="
+                )
+            else:
+                return jsonify({"error": "Unknown subcategory"}), 400
 
             data = extract_page_content(api_url)
             if not data or 'results' not in data:
                 return jsonify({"summary": "No data found"}), 404
 
-            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
-            
-
-            if subcategory_data:
-                answer = summarise_content(subcategory_data, language)               
-                return jsonify({'summary': answer}), 200
-            else:
+            sub_data = next(
+                (cd for cd in data.get('results', []) if str(cd.get('nid')) == str(nid)),
+                {}
+            )
+            if not sub_data:
                 return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+
+            # ---- extract 100–150 words per tab ----
+            tabs_data = {
+                "history": _extract_words(sub_data.get("body") or ""),
+                "philosophy": _extract_words(sub_data.get("field_philosophy") or ""),
+                "practitioners": _extract_words(sub_data.get("field_practitioners") or ""),
+                "literature": _extract_words(sub_data.get("field_literature") or ""),
+                "surgical_equipment": _extract_words(sub_data.get("field_surgical_equipment") or ""),
+            }
+
+            locations = _gather_locations(sub_data.get('field_medical_map_marker'))
+
+            text_data = {"summary": tabs_data,  "locations": locations }
+
+            print(locations)
+            answer = summarise_content(text_data, language)
+            return jsonify({'summary': answer}), 200
+
         except Exception as e:
             print(e)
-            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+            return jsonify({'summary': 'Failed to process the page. Try again!'}), 500
 #-----------------------------------------------------------------------------
 
     # classical dances
