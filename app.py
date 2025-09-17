@@ -1611,7 +1611,7 @@ def summarise_page_endpoint():
     # healing through ages
     def handle_healing_through_the_ages(parsed_url, page, nid, language):
 
-        nid_ = nid
+        nid_ = int(parsed_url.split('/')[-1].split('=')[-1])
         sub_category = parsed_url.split('/')[2].lower().strip()
         tab = ((request.get_json(silent=True) or {}).get('tab') or '').strip().lower()
 
