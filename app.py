@@ -1615,7 +1615,7 @@ def summarise_page_endpoint():
 
         try: 
             if sub_category == 'pan-indian-traditions':   
-                api_url = f'https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/pan-india-traditions?page={page if page != "" else 0}&&field_state_name_value='
+                api_url = f'https://icvtestingold.nvli.in/rest-v1/healing-through-the-ages/pan-india-traditions?page={page if page != "" else 0}&&field_state_name_value='
 
                 data = extract_page_content(api_url)
 
