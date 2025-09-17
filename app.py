@@ -84,6 +84,7 @@ def _extract_words(html_text: str, min_words=30, max_words= 60) -> str:
     n = min(len(words), max_words)
     if n < min_words:
         return " ".join(words)
+    print('extracted words')
     return " ".join(words[:n])
 
 
@@ -122,6 +123,7 @@ def _parse_marker_batches(raw):
             batches.append(json.loads(piece))
         except Exception:
             pass
+    print(' parsed marker batches')
     return batches
 
 def _gather_locations(field_medical_map_marker):
@@ -143,6 +145,7 @@ def _gather_locations(field_medical_map_marker):
                 "type": item.get("field_choose_types") or "",
                 "description": desc   # clipped to 50–100 words
             })
+    print('location gathered')
     return locations
 
 def translate_to_hindi(text: str) -> str:
@@ -1682,6 +1685,7 @@ def summarise_page_endpoint():
     
     # healing through ages
     def handle_healing_through_the_ages(parsed_url, page, nid, language):
+        print('in healing')
         sub_category = parsed_url.split('/')[2].lower().strip()
 
         try:
@@ -1692,12 +1696,15 @@ def summarise_page_endpoint():
                     "&&field_state_name_value=%20Request%20Method"
                 )
 
+             print('called pan india')
+
             elif sub_category == 'unconventional-traditions':
                 api_url = (
                     "https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/"
                     f"unconventional-traditions?page={page if page != '' else 0}"
                     "&&field_state_name_value="
                 )
+             print('called uncoventional')
             else:
                 return jsonify({"error": "Unknown subcategory"}), 400
 
@@ -1705,6 +1712,7 @@ def summarise_page_endpoint():
             if not data or 'results' not in data:
                 return jsonify({"summary": "No data found"}), 404
 
+            print('data extracted')
             sub_data = next(
                 (cd for cd in data.get('results', []) if str(cd.get('nid')) == str(nid)),
                 {}
@@ -1712,7 +1720,6 @@ def summarise_page_endpoint():
             if not sub_data:
                 return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
 
-            # ---- extract 100–150 words per tab ----
             tabs_data = {
                 "history": _extract_words(sub_data.get("body") or ""),
                 "philosophy": _extract_words(sub_data.get("field_philosophy") or ""),
