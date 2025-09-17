@@ -1727,7 +1727,6 @@ def summarise_page_endpoint():
 
             text_data = {"summary": tabs_data,  "locations": locations }
 
-            print(locations)
             answer = summarise_content(text_data, language)
             return jsonify({'summary': answer}), 200
 
