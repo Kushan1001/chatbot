@@ -1615,6 +1615,8 @@ def summarise_page_endpoint():
         sub_category = parsed_url.split('/')[2].lower().strip()
         tab = ((request.get_json(silent=True) or {}).get('tab') or '').strip().lower()
 
+        print('healing_nid', nid)
+        
         print('step 1 - tab', tab)
 
         # --- Build API URL ---
