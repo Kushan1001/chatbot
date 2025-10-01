@@ -697,24 +697,44 @@ def summarise_page_endpoint():
 
 #------------------------------------------------------------------------------------
     def handle_musical_instruments(parsed_url, page, nid, language):
+        print('here')
         try:
-            musical_instrument = parsed_url.split('/')[2]
-            print('musical_instrument', musical_instrument)
+            print(nid)
+            path_parts = [seg for seg in urlparse(parsed_url).path.split('/') if seg]
+            sub_category = (path_parts[0].lower() if path_parts else '')
+            instrument_slug = (path_parts[1] if len(path_parts) > 1 else '').strip()
+            print(sub_category)
+
             base_url = 'https://icvtesting.nvli.in/rest-v1/musical-instruments'
-            api_url = f'{base_url}/{musical_instrument}?page={page if page != "" else 0}'
-            print('api_url', api_url)
 
-            data = extract_page_content(api_url)
-            if not data or 'results' not in data:
-                return jsonify({"summary": "No data found"}), 404
+            # paging strategy same as your first function
+            pages_to_try = [page] if page != "" else list(range(0, 5))
+            if page != "" and page not in pages_to_try:
+                pages_to_try.extend(range(0, 6))
 
-            instrument_data = next((inst for inst in data['results'] if str(inst.get('nid')) == str(nid)), None)
+            for p in pages_to_try:
+                api_url = f'{base_url}/{instrument_slug}?page={p}'
+                print('api_url', api_url)
 
-            if instrument_data:
-                answer = summarise_content(instrument_data, language)
-                return jsonify({'summary': answer}), 200
-            else:
-                return jsonify({"summary": "No NID found to fetch data. Try another page"}), 404
+                data = extract_page_content(api_url)
+                if not data or 'results' not in data:
+                    continue
+
+                # If no NID and subcategory is 'musical-instruments' → provide a generic text to summarise
+                if (not nid or str(nid).strip() == "") and sub_category == 'musical-instruments-of-india':
+                    instrument_data = f"This page contains information about the musical instruments"
+                else:
+                    instrument_data = next(
+                        (inst for inst in data['results'] if str(inst.get('nid')) == str(nid)),
+                        None
+                    )
+
+                if instrument_data:
+                    answer = summarise_content(instrument_data, language)
+                    return jsonify({'summary': answer}), 200
+
+            return jsonify({"summary": "No NID found in pages 0-4. Try another NID."}), 404
+
         except Exception as e:
             print("Error in musical instrument handler:", e)
             return jsonify({'summary': 'No NID Found'}), 500
@@ -762,22 +782,39 @@ def summarise_page_endpoint():
 
     def handle_stories(parsed_url, page, nid, language):
         try:
-            api_url = f'https://icvtesting.nvli.in/rest-v1/stories-filter?page={page if page != "" else 0}&&field_state_name_value='
+            # robustly derive the first path segment (subcategory)
+            path_parts = [seg for seg in urlparse(parsed_url).path.split('/') if seg]
+            sub_category = (path_parts[0].lower() if path_parts else '')
 
-            data = extract_page_content(api_url)
-            if not data or 'results' not in data:
-                return jsonify({"summary": "No data found"}), 404
+            pages_to_try = [page] if page != "" else list(range(0, 2))
+            if page != "" and page not in pages_to_try:
+                pages_to_try.extend(range(0, 3))  
 
-            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
+            for p in pages_to_try:
+                api_url = f'https://icvtesting.nvli.in/rest-v1/stories-filter?page={p}&&field_state_name_value='
+                print(api_url)
+                data = extract_page_content(api_url)
 
-            if subcategory_data:
-                answer = summarise_content(clean_and_truncate_html(subcategory_data['field_story_short_descp'], 2000), language)               
-                return jsonify({'summary': answer}), 200
-            else:
-                return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
+                if not data or 'results' not in data:
+                    continue
+
+                if (not nid or str(nid).strip() == "") and sub_category == 'stories':
+                    subcategory_data = "This page contains information about various stories available on Indian Cultural Portal."
+                else:
+                    subcategory_data = next(
+                        (category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)),
+                        None
+                    )
+
+                if subcategory_data:
+                    answer = summarise_content(subcategory_data, language)
+                    return jsonify({'summary': answer}), 200
+
+            return jsonify({'summary': 'No NID found in pages 0-2. Try another NID.'}), 404
+
         except Exception as e:
             print(e)
-            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500 
+            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
     
 #------------------------------------------------------------------------------------
     
@@ -1859,17 +1896,8 @@ def summarise_page_endpoint():
             sub_category = parsed_url.split('/')[2].lower().strip()
             if sub_category == 'fables':
                 sub_sub_category = parsed_url.split('/')[3].lower().strip()
-                if sub_sub_category == 'honesty-and-integrity':
-                    api_url = f'https://icvtesting.nvli.in/rest-v1/folktales-of-india/fables?Fables_type=honesty_and_integrity'
-                else:
-                    section = parsed_url.split('/')[-1].lower().strip().replace('-', '_')
-                    if section == 'kindness-and-compassion' or section == 'greed-and-its-consequences' or section == 'appearance-and-reality' or section == 'friendship-and-loyalty' or section == 'perseverance-and-resilience':
-                        subcategory_data == 'No content available on the page. Try another page!'
-                        answer = summarise_content(subcategory_data, language)               
-                        return jsonify({'summary': answer}), 200
-                    else:    
-                        api_url = f'https://icvtesting.nvli.in/rest-v1/folktales-of-india/fables?Fables_type={section}'
-                    print('debug', api_url)
+                type = sub_sub_category.replace('-', '_')
+                api_url = f'https://icvtesting.nvli.in/rest-v1/folktales-of-india/fables?Fables_type={type}'
             if sub_category == 'fairytales':
                 api_url = 'https://icvtesting.nvli.in/rest-v1/fairytales-landing-main?page=0&&field_state_name_value='
             if sub_category == 'legends':
@@ -1893,7 +1921,6 @@ def summarise_page_endpoint():
         except Exception as e:
             print(e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
-
 #-----------------------------------------------------------------------------
 
     def handle_lengendary_figures(parsed_url, page, nid, language):
