@@ -1834,34 +1834,41 @@ def summarise_page_endpoint():
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
 #-----------------------------------------------------------------------------
 
-    def handle_historic_cities_freedom_movement(parsed_url, page, nid, language):
+    def handle_historical_cities(parsed_url, page, nid, language):
         try:
-            city = parsed_url.split('/')[2].lower().strip()
-            if city != 'patna':
-                api_url = f'https://icvtesting.nvli.in/rest-v1/{city}/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
-            else:
-                api_url = 'https://icvtesting.nvli.in/rest-v1/historic-cities/patna/Historic-cities-freedom-movement?page=0&&field_state_name_value='
+            parts = parsed_url.strip('/').split('/')
 
-            print(api_url)
+            city = parts[-1].lower().strip()
+            print('city:', city)
 
+            # Construct the API URL
+            api_url = 'https://icvtestingold.nvli.in/rest-v1/historic-cities?page=0&&field_state_name_value='
+            print('api_url:', api_url)
+
+            # Fetch API data
             data = extract_page_content(api_url)
 
+            # Validate data
             if not data or 'results' not in data:
                 return jsonify({"summary": "No data found"}), 404
 
-            if nid:
-                subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
-            else:
-                subcategory_data = data
-            
+            # Match subcategory by title
+            subcategory_data = next(
+                (category_data for category_data in data['results']
+                if category_data.get('title', '').lower().strip() == city),
+                None
+            )
+
             if subcategory_data:
-                answer = summarise_content(subcategory_data, language)               
+                answer = summarise_content(subcategory_data, language)
                 return jsonify({'summary': answer}), 200
             else:
-                return jsonify({'summary': 'No NID Found to fetch data. Try another page'}), 404            
+                return jsonify({'summary': 'No matching city found. Try another page'}), 404
+
         except Exception as e:
-            print(e)
+            print('Error in handle_historical_cities:', e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
+
 #-----------------------------------------------------------------------------
 
     def handle_historic_cities(parsed_url, page, nid, language):
