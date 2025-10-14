@@ -1819,36 +1819,41 @@ def summarise_page_endpoint():
 
     def handle_historical_cities(parsed_url, page, nid, language):
         try:
-            city = parsed_url.split('/')[2].lower().strip()
-            api_url = f'https://icvtesting.nvli.in/rest-v1/historic-cities?page=0&&field_state_name_value='
-            print('api_url',api_url)
-            data = extract_page_content(api_url)
-            if not data or 'results' not in data:
-                return jsonify({"summary": "No data found"}), 404
-
-            subcategory_data = next((category_data for category_data in data['results'] if str(category_data.get('nid')) == str(nid)), None)
-
-            if subcategory_data:
-                answer = summarise_content(subcategory_data, language)               
-                return jsonify({'summary': answer}), 200
-            else:
-                return jsonify({'summary': 'No NID found to fetch data. Try another page'}), 404
-        except Exception as e:
-            print(e)
-            return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
-#-----------------------------------------------------------------------------
-
-    def handle_historical_cities(parsed_url, page, nid, language):
-        try:
             parts = parsed_url.strip('/').split('/')
 
             city = parts[-1].lower().strip()
-            print('city:', city)
+            
+            if 'historic-cities-freedom-movement' in city:
+                print('here')
+                city = city.split('-')[-1]
+                print(city == 'ahmedabad')
+                if city == 'ahmedabad':
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/ahmedabad/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
+
+                if city == 'varanasi':
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/varanasi/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
+                
+                if city == 'lucknow':
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/lucknow/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
+
+                if city == 'patna':
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/historic-cities/patna/Historic-cities-freedom-movement?page=0&&field_state_name_value='
+
+                print(api_url)
+
+                data = extract_page_content(api_url)
+
+                if not data or 'results' not in data:
+                    return jsonify({"summary": "No data found"}), 404
+                
+                else:
+                    answer = summarise_content(data['results'], language)
+                    return jsonify({'summary': answer}), 200
 
             # Construct the API URL
-            api_url = 'https://icvtestingold.nvli.in/rest-v1/historic-cities?page=0&&field_state_name_value='
+            api_url = 'https://icvtesting.nvli.in/rest-v1/historic-cities?page=0&&field_state_name_value='
             print('api_url:', api_url)
-
+            
             # Fetch API data
             data = extract_page_content(api_url)
 
@@ -1863,6 +1868,8 @@ def summarise_page_endpoint():
                 None
             )
 
+            print(subcategory_data)
+
             if subcategory_data:
                 answer = summarise_content(subcategory_data, language)
                 return jsonify({'summary': answer}), 200
@@ -1872,7 +1879,6 @@ def summarise_page_endpoint():
         except Exception as e:
             print('Error in handle_historical_cities:', e)
             return jsonify({'summary': 'Failed to summarise the page. Try again!'}), 500
-
 #-----------------------------------------------------------------------------
 
     def handle_historic_cities(parsed_url, page, nid, language):
