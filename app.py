@@ -108,9 +108,16 @@ def truncate_text(text, max_tokens=850):
 
 def extract_page_content(url):
     try:
-        response = requests.get(url)
-        response.raise_for_status()
-        return response.json()
+        with requests.get(url, timeout=30, stream=True) as response:
+            response.raise_for_status()
+            data = response.json()
+            return data
+    except requests.exceptions.Timeout:
+        print(f"Timeout when fetching: {url}")
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        return None
     except Exception as e:
         print(f"Error fetching page content: {e}")
         return None
