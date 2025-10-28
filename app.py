@@ -1211,6 +1211,7 @@ def summarise_page_endpoint():
                     data = extract_page_content(api_url)
                     if not data or 'results' not in data:
                         continue  
+                    print('data', data)
 
                     # If no NID provided and category is reclaimed-relics → set to "test"
                     if (not nid or str(nid).strip() == "") and sub_category == 'reclaimed-relics':
