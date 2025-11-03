@@ -52,8 +52,7 @@ db = SQLDatabase.from_uri(f'sqlite:///all_categories_data-sqlite.db')
 # initalising an LLM
 llm = ChatGroq(
     temperature = 0.1,
-    model_name = 'llama-3.1-8b-instant',
-    callback_manager = CallbackManager([tracer])
+    model_name = 'llama-3.1-8b-instant'
 )
 
 # ============================================
