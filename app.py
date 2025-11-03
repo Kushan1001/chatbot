@@ -795,7 +795,7 @@ def summarise_page_endpoint():
                 pages_to_try.extend(range(0, 3))  
 
             for p in pages_to_try:
-                api_url = f'https://icvtestingold.nvli.in/rest-v1/stories-filter?page={p}&&field_state_name_value='
+                api_url = f'https://icvtesting.nvli.in/rest-v1/stories-filter?page={p}&&field_state_name_value='
                 print(api_url)
                 data = extract_page_content(api_url)
 
@@ -826,7 +826,7 @@ def summarise_page_endpoint():
     def handle_textiles(parsed_url, page, nid, language):
         
         try:
-            base_url = 'https://icvtestingold.nvli.in/rest-v1/textiles-and-fabrics-of-india'
+            base_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india'
             subcategory_type = parsed_url.split('/')[2].lower()
 
             if subcategory_type == 'artisans':
@@ -864,15 +864,15 @@ def summarise_page_endpoint():
                 museum = parsed_url.split('/')[3].split('=')[-1]
                 print(museum)
                 if museum == 'National-Museum-New-Delhiss' or museum == 'National-Museum-New-Delhi':
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/national-museum?page={page}&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/national-museum?page={page}&&field_state_name_value='
                 elif museum == 'Indian-Museum-Kolkata':
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/indian-museum?page={page}&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/indian-museum?page={page}&&field_state_name_value='
                 elif museum == 'Salar-Jung-Museum-Hyderabad':
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/salarjung-museum?page={page}&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/salarjung-museum?page={page}&&field_state_name_value='
                 elif museum == 'Allahabad-Museum-Prayagraj':
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/ald-msm?page={page}&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/ald-msm?page={page}&&field_state_name_value='
                 elif museum == 'Victoria-Memorial-Hall-Kolkata':
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/vmh?page={0}&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/textiles-and-fabrics-of-india/textiles-museum-collections/vmh?page={0}&&field_state_name_value='
                 
                 data = extract_page_content(api_url)
 
@@ -928,27 +928,27 @@ def summarise_page_endpoint():
     # Timeless Trends
     def handle_timeless_trends(parsed_url, page, nid, language):
         try:
-            base_url = 'https://icvtestingold.nvli.in/rest-v1/timeless-trends'
+            base_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends'
             subcategory_type = parsed_url.split('/')[2].lower()
             subcategory_type_1 = parsed_url.split('/')[3].lower()
             print('subcategory_type', subcategory_type)
             
             if subcategory_type == 'accessories':
-                api_url = 'https://icvtestingold.nvli.in/rest-v1/timeless-trends/accessories?page=0&&field_state_name_value='
+                api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/accessories?page=0&&field_state_name_value='
                 if 'history' in subcategory_type_1.split('-'):
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/timeless-trends/a-brief-history-section-accessories?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/a-brief-history-section-accessories?page=0&&field_state_name_value='
 
 
             if subcategory_type == 'clothing':
-                api_url = 'https://icvtestingold.nvli.in/rest-v1/timeless-trends/clothing?page=0&&field_state_name_value='
+                api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/clothing?page=0&&field_state_name_value='
                 if 'history' in subcategory_type_1.split('-'):
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/timeless-trends/a-brief-history-section-clothing?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/a-brief-history-section-clothing?page=0&&field_state_name_value='
 
 
             if subcategory_type == 'hairstyles':
-                api_url = 'https://icvtestingold.nvli.in/rest-v1/timeless-trends/hairstyles?page=0&&field_state_name_value='
+                api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/hairstyles?page=0&&field_state_name_value='
                 if 'history' in subcategory_type_1.split('-'):
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/timeless-trends/a-brief-history-section-hairstyle?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/timeless-trends/a-brief-history-section-hairstyle?page=0&&field_state_name_value='
 
 
             if 'games' in subcategory_type:
@@ -983,7 +983,7 @@ def summarise_page_endpoint():
     # Nizams
     def handle_nizams(parsed_url, page, nid, language):
         try:
-            base_url = 'https://icvtestingold.nvli.in/rest-v1/jewellery-of-the-nizams'
+            base_url = 'https://icvtesting.nvli.in/rest-v1/jewellery-of-the-nizams'
             sub_category = parsed_url.split('/')[2].lower()
             if sub_category == 'history':
                 api_url = f'{base_url}/history?page={page if page != "" else 0}'
@@ -1024,7 +1024,7 @@ def summarise_page_endpoint():
     # UNESCO
     def handle_unesco(parsed_url, page, nid, language):
         try:
-            base_url = 'https://icvtestingold.nvli.in/rest-v1/unesco'
+            base_url = 'https://icvtesting.nvli.in/rest-v1/unesco'
             sub_category = parsed_url.split('/')[2].lower()
             api_url = f'{base_url}/{sub_category}?page={page if page != "" else 0}'
             print('api url', api_url)
@@ -1052,7 +1052,7 @@ def summarise_page_endpoint():
     # Forts of India
     def handle_forts(parsed_url, page, nid, language):
         try:
-            base_url = 'https://icvtestingold.nvli.in/rest-v1/forts-of-india'
+            base_url = 'https://icvtesting.nvli.in/rest-v1/forts-of-india'
             sub_category = parsed_url.split('/')[2].lower()
 
             if sub_category == 'discover-forts-of-india':
@@ -1060,7 +1060,7 @@ def summarise_page_endpoint():
             elif sub_category == 'understanding-the-forts':
                 api_url = f'{base_url}/understanding-forts?page={page if page != "" else 0}'
             elif sub_category == 'fortsandthefreedomstruggle':
-                api_url = 'https://icvtestingold.nvli.in/rest-v1/forts-of-india/forts-and-freedom-struggle?page=0&&field_state_name_value='
+                api_url = 'https://icvtesting.nvli.in/rest-v1/forts-of-india/forts-and-freedom-struggle?page=0&&field_state_name_value='
             else:
                 api_url = f'{base_url}/{sub_category}?page={page if page != "" else 0}'
             
@@ -1089,18 +1089,18 @@ def summarise_page_endpoint():
     # Ajanta Caves
     def handle_ajanta(parsed_url, data, nid, language):
         try:
-            base_url = 'https://icvtestingold.nvli.in/rest-v1/ajanta-landing-page'
+            base_url = 'https://icvtesting.nvli.in/rest-v1/ajanta-landing-page'
             api_url = base_url
 
             if len(parsed_url.split('/')) > 2:
                 sub_category = parsed_url.split('/')[2].lower()
                 if sub_category == 'paintings':
                     category = 'ajanta-'+sub_category[:-1]
-                    api_url = f'https://icvtestingold.nvli.in/rest-v1/{category}?page={page if page != "" else 0}'
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/{category}?page={page if page != "" else 0}'
                     print(api_url)
                 else:
                     category = 'ajanta-'+sub_category
-                    api_url = f'https://icvtestingold.nvli.in/rest-v1/{category}?page={page if page != "" else 0}'
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/{category}?page={page if page != "" else 0}'
                     print(api_url)
 
 
@@ -1127,7 +1127,7 @@ def summarise_page_endpoint():
     # Virtual Walkthrough
     def handle_virtual_walkthrough(parsed_url, page, nid, language):
         try:
-            base_url = 'https://icvtestingold.nvli.in/rest-v1'
+            base_url = 'https://icvtesting.nvli.in/rest-v1'
             sub_category = parsed_url.split('/')[2].lower()
             if sub_category == 'virtual-walkthrough':
                 api_url = f'{base_url}/{sub_category}?page={page if page != "" else 0}'
@@ -1156,15 +1156,15 @@ def summarise_page_endpoint():
         all_titles = []          
         try:
             if 'Story' in parsed_url:
-                api_url = f'https://icvtestingold.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3ADDR%20Story'
+                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3ADDR%20Story'
             elif 'Traditions' in parsed_url:
-                api_url = f'https://icvtestingold.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3ATraditions%20%26%20Art%20Forms'
+                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3ATraditions%20%26%20Art%20Forms'
             elif 'Personality' in parsed_url:
-                api_url = f'https://icvtestingold.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3APersonality'
+                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3APersonality'
             elif 'Events' in parsed_url:
-                api_url = f'https://icvtestingold.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3AEvents'
+                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3AEvents'
             elif 'Treasures' in parsed_url:
-                api_url = f'https://icvtestingold.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3AHidden%20Treasures'
+                api_url = f'https://icvtesting.nvli.in/rest-v1/district-repository?page={page}&f%5B0%5D=category_ddr%3AHidden%20Treasures'
 
             print(api_url)
 
@@ -1194,7 +1194,7 @@ def summarise_page_endpoint():
     # Artifacts
     def handle_artifacts(parsed_url, page, nid, language):
         try:
-            base_url = 'https://icvtestingold.nvli.in/rest-v1/retrieved-artefacts-of-india'
+            base_url = 'https://icvtesting.nvli.in/rest-v1/retrieved-artefacts-of-india'
             sub_category = parsed_url.split('/')[2].lower()
 
             print(nid)
@@ -1240,21 +1240,21 @@ def summarise_page_endpoint():
     # Freedom Fighters
     def handle_freedom_fighters(parsed_url, page, nid, language):
         try:
-            base_url = 'https://icvtestingold.nvli.in/rest-v1/freedom-archive' 
+            base_url = 'https://icvtesting.nvli.in/rest-v1/freedom-archive' 
             sub_category = parsed_url.split('/')[2].lower()
 
             if sub_category == 'unsung-heroes':
-                api_url = f'https://icvtestingold.nvli.in/rest-v1/unsung-heroes?page={page if page != "" else 0}&&field_state_name_value='
+                api_url = f'https://icvtesting.nvli.in/rest-v1/unsung-heroes?page={page if page != "" else 0}&&field_state_name_value='
             if sub_category == 'historic-cities':
                 city = parsed_url.split('/')[3].lower().strip()
                 if city != 'patna':
-                    api_url = f'https://icvtestingold.nvli.in/rest-v1/{city}/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/{city}/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
                 else:
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/historic-cities/patna/Historic-cities-freedom-movement?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/historic-cities/patna/Historic-cities-freedom-movement?page=0&&field_state_name_value='
             if sub_category == 'forts':
-                api_url = f'https://icvtestingold.nvli.in/rest-v1/forts-of-india/forts-and-freedom-struggle?page=0&&field_state_name_value='
+                api_url = f'https://icvtesting.nvli.in/rest-v1/forts-of-india/forts-and-freedom-struggle?page=0&&field_state_name_value='
             if sub_category == 'textile':
-                api_url = f'https://icvtestingold.nvli.in/rest-v1/INDIGO-DYE-AND-REVOLT?page=0&&field_state_name_value='
+                api_url = f'https://icvtesting.nvli.in/rest-v1/INDIGO-DYE-AND-REVOLT?page=0&&field_state_name_value='
         
             print(api_url)
 
@@ -1300,7 +1300,7 @@ def summarise_page_endpoint():
 
             # If "royal-table"
             if sub_category == 'royal-table':
-                api_url = 'https://icvtestingold.nvli.in/rest-v1/cuisine-royal-table?page=0&field_state_name_value='
+                api_url = 'https://icvtesting.nvli.in/rest-v1/cuisine-royal-table?page=0&field_state_name_value='
                 data = extract_page_content(api_url)
 
                 if not data or 'results' not in data:
@@ -1322,7 +1322,7 @@ def summarise_page_endpoint():
                 return jsonify({'summary': answer}), 200
             
             if sub_category == 'stirring-through-time':
-                api_url = 'https://icvtestingold.nvli.in/rest-v1/evolution-cuisine?page=0&&field_state_name_value='
+                api_url = 'https://icvtesting.nvli.in/rest-v1/evolution-cuisine?page=0&&field_state_name_value='
                 data = extract_page_content(api_url)
 
                 if not data or 'results' not in data:
@@ -1356,37 +1356,37 @@ def summarise_page_endpoint():
     # Festivals of India        
     def handle_festivals(parsed_url, page, nid, language):
         try:
-            base_url = 'https://icvtestingold.nvli.in/rest-v1/festivals-of-india' 
+            base_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-india' 
             category = parsed_url.split('/')[2].lower()
             sub_category = parsed_url.split('/')[3].lower()
             print('cat', category)
             print('sub', sub_category)
 
             if category == 'pan-indian-festivals':
-                api_url = 'https://icvtestingold.nvli.in/rest-v1/festivals-of-India/pan-indian-festivals?page=0&&field_state_name_value='
+                api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/pan-indian-festivals?page=0&&field_state_name_value='
             if category == 'fairs-and-pilgrimages':
                 if sub_category not in ['fairs', 'pilgrimages']:
-                    api_url = f'https://icvtestingold.nvli.in/rest-v1/festivals-of-India/fairs-pilgrimages/fairs?page=0&&field_state_name_value='
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/festivals-of-India/fairs-pilgrimages/fairs?page=0&&field_state_name_value='
                 if sub_category == 'fairs':
-                    api_url = f'https://icvtestingold.nvli.in/rest-v1/festivals-of-India/fairs-pilgrimages/fairs?page=0&&field_state_name_value='
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/festivals-of-India/fairs-pilgrimages/fairs?page=0&&field_state_name_value='
                 elif sub_category == 'pilgrimages':
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/festivals-of-India/fairs-pilgrimages/pilgrimage?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/fairs-pilgrimages/pilgrimage?page=0&&field_state_name_value='
             if category == 'folk-festivals':
                 if sub_category not in ['honouring-deities','social-traditions', 'celebrating-nature']:
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/festivals-of-India/folk-festivals/Celebrating-Nature?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Celebrating-Nature?page=0&&field_state_name_value='
                 if sub_category == 'honouring-deities':
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/festivals-of-India/folk-festivals/Honouring-Deities?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Honouring-Deities?page=0&&field_state_name_value='
                 if sub_category == 'social-traditions':
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/festivals-of-India/folk-festivals/Social-Traditions?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Social-Traditions?page=0&&field_state_name_value='
                 if sub_category == 'celebrating-nature':
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/festivals-of-India/folk-festivals/Celebrating-Nature?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/folk-festivals/Celebrating-Nature?page=0&&field_state_name_value='
             if category == 'tribal-festivals':
                 if sub_category not in ['venerating-ancestors-and-deities', 'worshipping-nature']:
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/festivals-of-India/tribal-festivals/worshipping-nature?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/tribal-festivals/worshipping-nature?page=0&&field_state_name_value='
                 if sub_category == 'venerating-ancestors-and-deities':
-                    api_url = f'https://icvtestingold.nvli.in/rest-v1/festivals-of-India/tribal-festivals/venerating-ancestors-deities?page=0&&field_state_name_value='
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/festivals-of-India/tribal-festivals/venerating-ancestors-deities?page=0&&field_state_name_value='
                 elif sub_category == 'worshipping-nature':
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/festivals-of-India/tribal-festivals/worshipping-nature?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/festivals-of-India/tribal-festivals/worshipping-nature?page=0&&field_state_name_value='
            
             print(api_url)
 
@@ -1420,17 +1420,17 @@ def summarise_page_endpoint():
             if category == 'north-east-india':
                 split = parsed_url.split('/')[5].lower().strip()
                 if sub_category == 'unsung-heroes':
-                    api_url = f'https://icvtestingold.nvli.in/rest-v1/north-east-archive/unsung-heroes?page=0&&field_state_name_value=?page={page if page != "" else 0}&&field_state_name_value='
+                    api_url = f'https://icvtesting.nvli.in/rest-v1/north-east-archive/unsung-heroes?page=0&&field_state_name_value=?page={page if page != "" else 0}&&field_state_name_value='
                 if sub_category == 'capital-cities-north-east-india':
                     if section == 'shillong':
                         if split == 'history-evolution':
-                            api_url = f'https://icvtestingold.nvli.in/rest-v1/north-east-marker-shillong-history?page=0&&field_state_name_value='
+                            api_url = f'https://icvtesting.nvli.in/rest-v1/north-east-marker-shillong-history?page=0&&field_state_name_value='
                         if split == 'natural-built-heritage':
-                            api_url = f'https://icvtestingold.nvli.in/rest-v1/north-east-marker-shillong-natural-and-built?page=0&&field_state_name_value='
+                            api_url = f'https://icvtesting.nvli.in/rest-v1/north-east-marker-shillong-natural-and-built?page=0&&field_state_name_value='
                         if split == 'streets-localities':
-                            api_url = f'https://icvtestingold.nvli.in/rest-v1/north-east-marker-shillong-street-and-localities?page=0&&field_state_name_value='
+                            api_url = f'https://icvtesting.nvli.in/rest-v1/north-east-marker-shillong-street-and-localities?page=0&&field_state_name_value='
                         if split == 'life-in-the-city':
-                            api_url = f'https://icvtestingold.nvli.in/rest-v1/north-east-marker-shillong-life-in-the-city?page=0&&field_state_name_value='
+                            api_url = f'https://icvtesting.nvli.in/rest-v1/north-east-marker-shillong-life-in-the-city?page=0&&field_state_name_value='
 
                         content = {}
 
@@ -1458,11 +1458,11 @@ def summarise_page_endpoint():
             if category == 'east-india':
                 if sub_category == 'bihar':
                     if section == 'tidbits-tales-and-trivia':
-                        api_url = f'https://icvtestingold.nvli.in/rest-v1/states-of-india/bihar/tidbits-tales-trivia?page=0&&field_state_name_value='
+                        api_url = f'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/tidbits-tales-trivia?page=0&&field_state_name_value='
                     if section == 'digital-archives':
-                        api_url = 'https://icvtestingold.nvli.in/rest-v1/states-of-india/bihar/digital-archives?page=0&&field_state_name_value='
+                        api_url = 'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/digital-archives?page=0&&field_state_name_value='
                     elif section == 'bihar-through-traveller-s-gaze':
-                        api_url = 'https://icvtestingold.nvli.in/rest-v1/states-of-india/bihar/bihar-through?page=0&&field_state_name_value='
+                        api_url = 'https://icvtesting.nvli.in/rest-v1/states-of-india/bihar/bihar-through?page=0&&field_state_name_value='
                         
                         content = {}
                         data = extract_page_content(api_url)
@@ -1485,7 +1485,7 @@ def summarise_page_endpoint():
                                 return jsonify({'summary': answer}), 200 
 
                     elif section == 'art-and-architecture':
-                        api_url = 'https://icvtestingold.nvli.in/rest-v1/art-and-architecture-api-pins?page=0&&field_state_name_value='
+                        api_url = 'https://icvtesting.nvli.in/rest-v1/art-and-architecture-api-pins?page=0&&field_state_name_value='
                         
                         content = {}
                         data = extract_page_content(api_url)
@@ -1561,7 +1561,7 @@ def summarise_page_endpoint():
     # Iconic battles
     def handle_iconic_battles(parsed_url, page, nid, language):
         try:
-            api_url = f'https://icvtestingold.nvli.in/rest-v1/iconic-battle-of-india/detail?page=&&field_state_name_value='
+            api_url = f'https://icvtesting.nvli.in/rest-v1/iconic-battle-of-india/detail?page=&&field_state_name_value='
 
             data = extract_page_content(api_url)
             if not data or 'results' not in data:
@@ -1628,11 +1628,11 @@ def summarise_page_endpoint():
         try:
             section = parsed_url.split('/')[2].lower().strip()
             if section == 'kings-and-queens':
-                api_url = 'https://icvtestingold.nvli.in/rest-v1/legendary-figure/kings-queens?page=0&&field_state_name_value='
+                api_url = 'https://icvtesting.nvli.in/rest-v1/legendary-figure/kings-queens?page=0&&field_state_name_value='
             if section == 'social-reformers-and-revolutionaries':
-                api_url = f'https://icvtestingold.nvli.in/rest-v1/legendary-figure/social-reformers-revolutionaries?page=0&&field_state_name_value='
+                api_url = f'https://icvtesting.nvli.in/rest-v1/legendary-figure/social-reformers-revolutionaries?page=0&&field_state_name_value='
             if section == 'sages-philosophers-and-thinkers':
-                api_url = 'https://icvtestingold.nvli.in/rest-v1/legendary-figure/sages-philosophers-thinkers?page=0&&field_state_name_value='
+                api_url = 'https://icvtesting.nvli.in/rest-v1/legendary-figure/sages-philosophers-thinkers?page=0&&field_state_name_value='
 
             data = extract_page_content(api_url)
             if not data or 'results' not in data:
@@ -1693,7 +1693,7 @@ def summarise_page_endpoint():
                 
         elif sub_category == 'unconventional-traditions':
             api_url = (
-                "https://icvtestingold.nvli.in/rest-v1/healing-through-the-ages/"
+                "https://icvtesting.nvli.in/rest-v1/healing-through-the-ages/"
                 f"unconventional-traditions?page={page if page else 0}"
                 "&field_state_name_value="
             )
@@ -1766,7 +1766,7 @@ def summarise_page_endpoint():
     # classical dances
     def handle_classical_dances(parsed_url, page, nid, language):
         try:
-            api_url = f'https://icvtestingold.nvli.in/rest-v1/classical-dances-details?page={page if page != "" else 0}&field_state_name_value='
+            api_url = f'https://icvtesting.nvli.in/rest-v1/classical-dances-details?page={page if page != "" else 0}&field_state_name_value='
             print('api_url', api_url)
             data = extract_page_content(api_url)
             if not data or 'results' not in data:
@@ -1829,16 +1829,16 @@ def summarise_page_endpoint():
                 city = city.split('-')[-1]
                 print(city == 'ahmedabad')
                 if city == 'ahmedabad':
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/ahmedabad/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/ahmedabad/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
 
                 if city == 'varanasi':
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/varanasi/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/varanasi/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
                 
                 if city == 'lucknow':
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/lucknow/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/lucknow/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
 
                 if city == 'patna':
-                    api_url = 'https://icvtestingold.nvli.in/rest-v1/historic-cities/patna/Historic-cities-freedom-movement?page=0&&field_state_name_value='
+                    api_url = 'https://icvtesting.nvli.in/rest-v1/historic-cities/patna/Historic-cities-freedom-movement?page=0&&field_state_name_value='
 
                 print(api_url)
 
@@ -1852,7 +1852,7 @@ def summarise_page_endpoint():
                     return jsonify({'summary': answer}), 200
 
             # Construct the API URL
-            api_url = 'https://icvtestingold.nvli.in/rest-v1/historic-cities?page=0&&field_state_name_value='
+            api_url = 'https://icvtesting.nvli.in/rest-v1/historic-cities?page=0&&field_state_name_value='
             print('api_url:', api_url)
             
             # Fetch API data
@@ -1885,7 +1885,7 @@ def summarise_page_endpoint():
     def handle_historic_cities(parsed_url, page, nid, language):
         print('func called')
         try:
-            api_url = 'https://icvtestingold.nvli.in/rest-v1/historic-cities/delhi/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
+            api_url = 'https://icvtesting.nvli.in/rest-v1/historic-cities/delhi/Historic_Cities_Freedom_Movement?page=0&&field_state_name_value='
         
             print(api_url)
 
@@ -1915,11 +1915,11 @@ def summarise_page_endpoint():
             if sub_category == 'fables':
                 sub_sub_category = parsed_url.split('/')[3].lower().strip()
                 type = sub_sub_category.replace('-', '_')
-                api_url = f'https://icvtestingold.nvli.in/rest-v1/folktales-of-india/fables?Fables_type={type}'
+                api_url = f'https://icvtesting.nvli.in/rest-v1/folktales-of-india/fables?Fables_type={type}'
             if sub_category == 'fairytales':
-                api_url = 'https://icvtestingold.nvli.in/rest-v1/fairytales-landing-main?page=0&&field_state_name_value='
+                api_url = 'https://icvtesting.nvli.in/rest-v1/fairytales-landing-main?page=0&&field_state_name_value='
             if sub_category == 'legends':
-                api_url = 'https://icvtestingold.nvli.in/rest-v1/folktales-of-india/legends?page=0&&field_state_name_'
+                api_url = 'https://icvtesting.nvli.in/rest-v1/folktales-of-india/legends?page=0&&field_state_name_'
 
             data = extract_page_content(api_url)
             if not data or 'results' not in data:
@@ -1946,13 +1946,13 @@ def summarise_page_endpoint():
             sub_category = parsed_url.split('/')[2].lower().strip()
 
             if sub_category == 'kings-and-queens':
-                api_url = 'https://icvtestingold.nvli.in/rest-v1/legendary-figure/kings-queens?page=0&&field_state_name_value='
+                api_url = 'https://icvtesting.nvli.in/rest-v1/legendary-figure/kings-queens?page=0&&field_state_name_value='
             
             if sub_category == 'sages-philosophers-and-thinkers':
-                api_url = 'https://icvtestingold.nvli.in/rest-v1/legendary-figure/social-reformers-revolutionaries?page=0&&field_state_name_value='
+                api_url = 'https://icvtesting.nvli.in/rest-v1/legendary-figure/social-reformers-revolutionaries?page=0&&field_state_name_value='
             
             if sub_category == 'social-reformers-and-revolutionaries':
-                api_url = 'https://icvtestingold.nvli.in/rest-v1/legendary-figure/sages-philosophers-thinkers?page=0&&field_state_name_value='
+                api_url = 'https://icvtesting.nvli.in/rest-v1/legendary-figure/sages-philosophers-thinkers?page=0&&field_state_name_value='
 
             data = extract_page_content(api_url)
             if not data or 'results' not in data:
