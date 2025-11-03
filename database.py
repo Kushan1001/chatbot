@@ -4,7 +4,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_core.documents import Document
 from langchain_community.utilities import SQLDatabase
 from langchain_groq import ChatGroq
-from langchain.callbacks.tracers import LangChainTracer
+from langchain_core.tracers.langchain import LangChainTracer
 from langchain_core.callbacks import CallbackManager
 from dotenv import load_dotenv
 load_dotenv()
